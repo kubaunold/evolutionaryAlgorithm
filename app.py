@@ -29,6 +29,7 @@ function_definition_column = [
 graph_viewer_column = [
 	[sg.Text("Write a function and click generate:")],
 	[sg.Canvas(key="-CANVAS-")],
+    [sg.Button("Wyczyść graf.", key="-CLEAR_FIGURE-")],
 ]
 
 # ----- Full layout -----
@@ -79,13 +80,17 @@ while True:
         fig, ax = plt.subplots(1,1)
         Z = f(X, Y)
         ax.contourf(X, Y, Z) 
+        ax.clf()    # clear before plotting
         ax.set_title('Contour Plot') 
-        ax.set_xlabel('x_axis') 
+        ax.set_xlabel('x_axis')
         ax.set_ylabel('y_axis')
-
 
         # Add the plot to the window
         draw_figure(window["-CANVAS-"].TKCanvas, fig)
+
+    if event == "-CLEAR_FIGURE-":
+        print("Button clear pressed.")
+        print("Cleared ax.")
 
 
 
