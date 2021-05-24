@@ -70,7 +70,14 @@ def windowInit():
 
     return window
 
-
+def loggerInit(window, keyOfLoggerWindow):
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(levelname)s: %(message)s")
+    viewHandler = logging.StreamHandler(window[keyOfLoggerWindow].TKOut)
+    viewHandler.setFormatter(formatter)
+    logger.addHandler(viewHandler)
+    return logger
 
 
 
@@ -128,13 +135,14 @@ def runProgram():
     ### Window initialization
     window = windowInit()
 
-    p = logging.getLogger(__name__)
-    p.setLevel(logging.INFO)
-    logger = p
-    formatter = logging.Formatter("%(levelname)s: %(message)s")
-    viewHandler = logging.StreamHandler(window[keyOfLoggerWindow].TKOut)
-    viewHandler.setFormatter(formatter)
-    logger.addHandler(viewHandler)
+    ### Logger initialization
+    logger = loggerInit(window, keyOfLoggerWindow)
+    # logger = logging.getLogger(__name__)
+    # logger.setLevel(logging.INFO)
+    # formatter = logging.Formatter("%(levelname)s: %(message)s")
+    # viewHandler = logging.StreamHandler(window[keyOfLoggerWindow].TKOut)
+    # viewHandler.setFormatter(formatter)
+    # logger.addHandler(viewHandler)
 
 
 
