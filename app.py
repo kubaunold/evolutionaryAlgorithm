@@ -6,6 +6,7 @@ import math
 from matplotlib import use as use_agg
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+import numpy as np
 
 import PySimpleGUI as sg
 
@@ -70,7 +71,8 @@ class Handler(logging.StreamHandler):
 
     def emit(self, record):
         global buffer
-        record = f'{record.name}, [{record.levelname}], {record.message}'
+        # record = f'{record.name}, [{record.levelname}], {record.message}'
+        record = f'{record.message}'
         buffer = f'{buffer}\n{record}'.strip()
         window[keyOfLoggerWindow].update(value=buffer)
 
@@ -109,17 +111,24 @@ def runProgram():
 
         if event == sg.WIN_CLOSED or event == 'Exit':
             break
+        ### Generate function
         if event == "-GENERATE-":
             folder = values["-FUNCTION-"]
             try:
-                # print(eval(folder))
-                logging.info("-GENERATE- event called.")
-                logging.info(eval(folder))
-                
-
+                # X = np.linspace(-10, 10, 100)
+                # Y = np.linspace(-10, 10, 100)
+                # X, Y = np.meshgrid(X, Y)
+                # Z = np.sin(np.sqrt(X**2 + Y**2))
+                # surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
+                #                         linewidth=0, antialiased=False)
+                # ax.set_zlim(-1.01, 1.01)
+                # fig.colorbar(surf, shrink=0.5, aspect=10)
+                # plt.plot(X, Y, Z)
+                # fig.canvas.draw() 
+                pass
             except:
-                print("")
-            
+                logging.info("Wywołano funkcję celu: " + str(eval(folder)))
+
 
         if event == "-GENERATE_MOCK-":
             # Generate points for sine curve.
