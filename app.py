@@ -4,7 +4,7 @@ from sympy import symbols   # for symbolic math
 import math
 
 from matplotlib import use as use_agg
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -45,12 +45,30 @@ def windowInit():
         [sg.Output(size=(100,10), key=keyOfLoggerWindow)],
     ]
 
+    # # second column of layout
+    # graph_viewer_column = [
+    #     [sg.Text("Napisz funkcję i kliknij 'Generuj':")],
+    #     [sg.Graph((640, 480), (0, 0), (640, 480), key="-GRAPH-")],
+    #     [sg.Button("Wyczyść graf", key="-CLEAR_FIGURE-")],
+    # ]
+
     # second column of layout
     graph_viewer_column = [
-        [sg.Text("Write a function and click generate:")],
-        [sg.Graph((640, 480), (0, 0), (640, 480), key="-GRAPH-")],
-        [sg.Button("Wyczyść graf.", key="-CLEAR_FIGURE-")],
+        [sg.T('Controls:')],
+        [sg.Canvas(key='controls_cv')],
+        [sg.T('Figure:')],
+        [sg.Column(
+            layout=[
+                [sg.Canvas(key='fig_cv',
+                        # it's important that you set this size
+                        size=(400 * 2, 400)
+                        )]
+            ],
+            background_color='#DAE0E6',
+            pad=(0, 0)
+        )],
     ]
+
 
     # Full layout
     layout = [[
@@ -61,7 +79,7 @@ def windowInit():
 
     ### Window definition
     window = sg.Window(
-        'Evolutionary Strategy Application',
+        'Wizualizacja strategii ewolucyjnych',
         layout,
         # default_element_size=(30, 2),
         # font=('Helvetica', ' 10'),
@@ -78,6 +96,28 @@ def loggerInit(window, keyOfLoggerWindow):
     viewHandler.setFormatter(formatter)
     logger.addHandler(viewHandler)
     return logger
+
+
+def draw_figure_w_toolbar(canvas, fig, canvas_toolbar):
+    if canvas.children:
+        for child in canvas.winfo_children():
+            child.destroy()
+    if canvas_toolbar.children:
+        for child in canvas_toolbar.winfo_children():
+            child.destroy()
+    figure_canvas_agg = FigureCanvasTkAgg(fig, master=canvas)
+    figure_canvas_agg.draw()
+    toolbar = Toolbar(figure_canvas_agg, canvas_toolbar)
+    toolbar.update()
+    figure_canvas_agg.get_tk_widget().pack(side='right', fill='both', expand=1)
+
+
+class Toolbar(NavigationToolbar2Tk):
+    def __init__(self, *args, **kwargs):
+        super(Toolbar, self).__init__(*args, **kwargs)
+
+
+
 
 
 
@@ -157,21 +197,25 @@ def runProgram():
     # set up a figure twice as wide as it is tall
     fig = plt.figure(figsize=plt.figaspect(0.5))
     # set up the axes for the first plot
-    ax = fig.add_subplot(2, 2, 1, projection='3d')
+    # ax = fig.add_subplot(2, 2, 1, projection='3d')
     while True:
-
-        
 
         event, values = window.read(timeout=10)
 
-        if event == sg.WIN_CLOSED or event == 'Exit':
+        if event in (sg.WIN_CLOSED, 'Exit'):
             break
         ### Generate function
         if event == "-GENERATE-":
             folder = values["-FUNCTION-"]
+            
             try:
-                logger.info(__name__)
-                # logger.info("Kliknąłeś 'Generuj'!")
+                parsedString = str(eval(folder))
+            except:
+                logger.info("Błąd podczas rozparsowywania funkcji. Zmień wzór i kliknij 'Generuj'.")
+            else:   # this block will be executed if no there are no errors
+                logger.info(f"Pomyślnie rozparsowano funkcję: f() = {parsedString}")
+            
+            try:
                 # X = np.linspace(-10, 10, 100)
                 # Y = np.linspace(-10, 10, 100)
                 # X, Y = np.meshgrid(X, Y)
@@ -182,10 +226,28 @@ def runProgram():
                 # fig.colorbar(surf, shrink=0.5, aspect=10)
                 # plt.plot(X, Y, Z)
                 # fig.canvas.draw() 
-                pass
+
+
+                 # ------------------------------- PASTE YOUR MATPLOTLIB CODE HERE
+                plt.figure(1)
+                fig = plt.gcf()
+                DPI = fig.get_dpi()
+                # ------------------------------- you have to play with this size to reduce the movement error when the mouse hovers over the figure, it's close to canvas size
+                sizeOfFigure = 600
+                fig.set_size_inches(sizeOfFigure/DPI, sizeOfFigure/DPI)
+                # -------------------------------
+                x = np.linspace(0, 2 * np.pi)
+                y = np.sin(x)
+                plt.plot(x, y)
+                plt.title('y=sin(x)')
+                plt.xlabel('X')
+                plt.ylabel('Y')
+                plt.grid()
+
+                # ------------------------------- Instead of plt.show()
+                draw_figure_w_toolbar(window['fig_cv'].TKCanvas, fig, window['controls_cv'].TKCanvas)
             except:
-                # logging.info("Wywołano funkcję celu: " + str(eval(folder)))
-                pass
+                logger.info("Błąd przy próbie narysowania funkcji.")
 
         if event == "-GENERATE_MOCK-":
             pass
