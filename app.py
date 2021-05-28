@@ -112,7 +112,10 @@ def runProgram():
     ### Logger initialization
     logger = loggerInit(window, keyOfLoggerWindow)
     # set up a figure twice as wide as it is tall
-    fig = plt.figure(figsize=plt.figaspect(0.5))
+    # fig = plt.figure(figsize=plt.figaspect(0.5))
+
+    fig = plt.figure()
+
     # ax = fig.add_subplot(2, 2, 1, projection='3d')
 
     while True:
@@ -125,65 +128,87 @@ def runProgram():
         if event == "-GENERATE-":
             folder = values["-FUNCTION-"]
 
-            try:
-                parsedString = str(eval(folder))
+            try:    # parse function
+                f = eval(folder)
+                parsedString = str(f)
             except:
                 logger.info("Błąd podczas rozparsowywania funkcji. Zmień wzór i kliknij 'Generuj'.")
-            else:   # this block will be executed if no there are no errors
-                logger.info(f"Pomyślnie rozparsowano funkcję: f() = {parsedString}")
-
-            try:
-                occuringVariables = eval(folder).atoms(Symbol)
-                strOccuringVariables = str(occuringVariables)
-                noOccuringVariables = len(strOccuringVariables.split())
-            except:
-                logger.info("Nie mogłem policzyć zmiennych w równaniu funkcji celu.")
             else:
-                logger.info(f"Występujące zmienne: {strOccuringVariables}. N={noOccuringVariables}.")
+                logger.info(f"Pomyślnie rozparsowano funkcję: f() = {parsedString}")
+                try:    # get and count variables
+                    occuringVariables = f.atoms(Symbol)
+                    strOccuringVariables = str(occuringVariables)
+                    n = len(strOccuringVariables.split())
+                except:
+                    logger.info("Nie mogłem policzyć zmiennych w równaniu funkcji celu.")
+                else:
+                    logger.info(f"Występujące zmienne: {strOccuringVariables}. N={n}.")
 
-            try:
-                 # ------------------------------- PASTE YOUR MATPLOTLIB CODE HERE
-                # plt.figure(1)
-                # fig = plt.gcf()
-                # DPI = fig.get_dpi()
-                # ------------------------------- you have to play with this size to reduce the movement error when the mouse hovers over the figure, it's close to canvas size
-                # sizeOfFigure = 600
-                # fig.set_size_inches(sizeOfFigure/DPI, sizeOfFigure/DPI)
-                # -------------------------------
-                # x = np.linspace(0, 2 * np.pi)
-                # y = np.sin(x)
-                # plt.plot(x, y)
-                # plt.title('y=sin(x)')
-                # plt.xlabel('X')
-                # plt.ylabel('Y')
-                # plt.grid()
+                    try:    # draw function
+                        if n==1:
+                            logger.info("1 zmienna. Tylko wykres 2D.")
+                            fig.add_subplot(111)
+                            # ax = fig.add_subplot(1, 1, 1, projection='2d')
+                            X = np.linspace(-5.0, 5.0, num=50)
+                            Y = [f.subs(x1, x) for x in X]
+                            plt.plot(X, Y)
+                            plt.title(f'f(x1)={str(f)}')
+                            plt.xlabel('x1')
+                            plt.ylabel('f(x1)')
+                            plt.grid()
+                            draw_figure_w_toolbar(window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+                            logger.info("Poprawnie udało się narysować wykres.")
+
+                        elif n==2:
+                            logger.info("2 zmienne. Wykres 3D + warstwice.")
 
 
-                # X = np.arange(-5, 5, 0.25)
-                # Y = np.arange(-5, 5, 0.25)
-                # X, Y = np.meshgrid(X, Y)
-                # Z = np.sin(np.sqrt(X**2 + Y**2))
-                # plt.plot(X, Y, Z)
 
-                ax = fig.add_subplot(1, 1, 1, projection='3d')
+                        else:
+                            logger.info("3, 4 lub 5 zmiennych lub wystąpił błąd. Do nothing.")
 
-                # plot a 3D surface like in the example mplot3d/surface3d_demo
-                X = np.arange(-5, 5, 0.25)
-                Y = np.arange(-5, 5, 0.25)
-                X, Y = np.meshgrid(X, Y)
-                Z = np.sin(np.sqrt(X**2 + Y**2))
-                surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
-                                        linewidth=0, antialiased=False)
-                ax.set_zlim(-1.01, 1.01)
-                fig.colorbar(surf, shrink=0.5, aspect=10)
 
-                # ------------------------------- Instead of plt.show()
-                draw_figure_w_toolbar(window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
-            except:
-                logger.info("Błąd przy próbie narysowania funkcji.")
+                        
+                    except:
+                        logger.info("Błąd przy próbie narysowania funkcji.")
 
         if event == "-GENERATE_MOCK-":
-            pass
+            # ------------------------------- PASTE YOUR MATPLOTLIB CODE HERE
+            # plt.figure(1)
+            # fig = plt.gcf()
+            # DPI = fig.get_dpi()
+            # ------------------------------- you have to play with this size to reduce the movement error when the mouse hovers over the figure, it's close to canvas size
+            # sizeOfFigure = 600
+            # fig.set_size_inches(sizeOfFigure/DPI, sizeOfFigure/DPI)
+            # -------------------------------
+            # x = np.linspace(0, 2 * np.pi)
+            # y = np.sin(x)
+            # plt.plot(x, y)
+            # plt.title('y=sin(x)')
+            # plt.xlabel('X')
+            # plt.ylabel('Y')
+            # plt.grid()
+
+
+            # X = np.arange(-5, 5, 0.25)
+            # Y = np.arange(-5, 5, 0.25)
+            # X, Y = np.meshgrid(X, Y)
+            # Z = np.sin(np.sqrt(X**2 + Y**2))
+            # plt.plot(X, Y, Z)
+
+            ax = fig.add_subplot(1, 1, 1, projection='3d')
+
+            # plot a 3D surface like in the example mplot3d/surface3d_demo
+            X = np.arange(-5, 5, 0.25)
+            Y = np.arange(-5, 5, 0.25)
+            X, Y = np.meshgrid(X, Y)
+            Z = np.sin(np.sqrt(X**2 + Y**2))
+            surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+            ax.set_zlim(-1.01, 1.01)
+            fig.colorbar(surf, shrink=0.5, aspect=10)
+
+            # ------------------------------- Instead of plt.show()
+            draw_figure_w_toolbar(window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
 
 
     window.close()
