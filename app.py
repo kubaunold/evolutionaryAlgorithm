@@ -1,16 +1,15 @@
 # app.py
 from sympy import symbols   # for symbolic math
-
-import math
-
-from matplotlib import use as use_agg
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-import matplotlib.pyplot as plt
+from sympy import Number, NumberSymbol, Symbol
 import numpy as np
+import math
 
 import PySimpleGUI as sg
 
-from sympy import symbols   # for symbolic math
+from matplotlib import use as use_agg
+from matplotlib import cm
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+import matplotlib.pyplot as plt
 
 import logging
 
@@ -45,11 +44,11 @@ def windowInit():
     # second column of layout
     graph_viewer_column = [
         [sg.T('Controls:')],
-        [sg.Canvas(key='controls_cv')],
+        [sg.Canvas(key='-FIGURE_CONTROLS-')],
         [sg.T('Figure:')],
         [sg.Column(
             layout=[
-                [sg.Canvas(key='fig_cv',
+                [sg.Canvas(key='-FIGURE-',
                         # it's important that you set this size
                         size=(400 * 2, 400)
                         )]
@@ -117,40 +116,69 @@ def runProgram():
     # ax = fig.add_subplot(2, 2, 1, projection='3d')
 
     while True:
-
         event, values = window.read(timeout=10)
 
         if event in (sg.WIN_CLOSED, 'Exit'):
             break
+
         ### Generate function
         if event == "-GENERATE-":
             folder = values["-FUNCTION-"]
-            
+
             try:
                 parsedString = str(eval(folder))
             except:
                 logger.info("Błąd podczas rozparsowywania funkcji. Zmień wzór i kliknij 'Generuj'.")
             else:   # this block will be executed if no there are no errors
                 logger.info(f"Pomyślnie rozparsowano funkcję: f() = {parsedString}")
-            
+
+            try:
+                occuringVariables = eval(folder).atoms(Symbol)
+                strOccuringVariables = str(occuringVariables)
+                noOccuringVariables = len(strOccuringVariables.split())
+            except:
+                logger.info("Nie mogłem policzyć zmiennych w równaniu funkcji celu.")
+            else:
+                logger.info(f"Występujące zmienne: {strOccuringVariables}. N={noOccuringVariables}.")
+
             try:
                  # ------------------------------- PASTE YOUR MATPLOTLIB CODE HERE
-                plt.figure(1)
-                fig = plt.gcf()
-                DPI = fig.get_dpi()
+                # plt.figure(1)
+                # fig = plt.gcf()
+                # DPI = fig.get_dpi()
                 # ------------------------------- you have to play with this size to reduce the movement error when the mouse hovers over the figure, it's close to canvas size
-                sizeOfFigure = 600
-                fig.set_size_inches(sizeOfFigure/DPI, sizeOfFigure/DPI)
+                # sizeOfFigure = 600
+                # fig.set_size_inches(sizeOfFigure/DPI, sizeOfFigure/DPI)
                 # -------------------------------
-                x = np.linspace(0, 2 * np.pi)
-                y = np.sin(x)
-                plt.plot(x, y)
-                plt.title('y=sin(x)')
-                plt.xlabel('X')
-                plt.ylabel('Y')
-                plt.grid()
+                # x = np.linspace(0, 2 * np.pi)
+                # y = np.sin(x)
+                # plt.plot(x, y)
+                # plt.title('y=sin(x)')
+                # plt.xlabel('X')
+                # plt.ylabel('Y')
+                # plt.grid()
+
+
+                # X = np.arange(-5, 5, 0.25)
+                # Y = np.arange(-5, 5, 0.25)
+                # X, Y = np.meshgrid(X, Y)
+                # Z = np.sin(np.sqrt(X**2 + Y**2))
+                # plt.plot(X, Y, Z)
+
+                ax = fig.add_subplot(1, 1, 1, projection='3d')
+
+                # plot a 3D surface like in the example mplot3d/surface3d_demo
+                X = np.arange(-5, 5, 0.25)
+                Y = np.arange(-5, 5, 0.25)
+                X, Y = np.meshgrid(X, Y)
+                Z = np.sin(np.sqrt(X**2 + Y**2))
+                surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
+                                        linewidth=0, antialiased=False)
+                ax.set_zlim(-1.01, 1.01)
+                fig.colorbar(surf, shrink=0.5, aspect=10)
+
                 # ------------------------------- Instead of plt.show()
-                draw_figure_w_toolbar(window['fig_cv'].TKCanvas, fig, window['controls_cv'].TKCanvas)
+                draw_figure_w_toolbar(window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
             except:
                 logger.info("Błąd przy próbie narysowania funkcji.")
 
