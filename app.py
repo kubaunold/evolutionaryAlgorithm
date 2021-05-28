@@ -34,6 +34,7 @@ def windowInit():
     ### Layout Definition
     # first column of a layout
     function_definition_column = [
+        [sg.T("Podaj wzór funkcji wykorzystując następujące zmienne w podanej kolejności:\nx1, x2, x3, x4, x5.")],
         [sg.Text("f(xi)="), sg.In(size=(25, 1), enable_events=True, key="-FUNCTION-")],
         [sg.Text("Kostka"), sg.Text("Ograniczenia")],
         [sg.Button("Generuj", key="-GENERATE-")],
@@ -144,10 +145,14 @@ def runProgram():
                 else:
                     logger.info(f"Występujące zmienne: {strOccuringVariables}. N={n}.")
 
+                    ### Zmienne muszą być podawane po kolei!
+                    ### Jeśli n=3, to występują x1, x2 i x3!
                     try:    # draw function
                         if n==1:
-                            logger.info("1 zmienna. Tylko wykres 2D.")
+                            logger.info("===ROZPOZNANO RÓWNANIE Z 1 ZMIENNĄ===")
+                            logger.info("Tylko wykres 2D.")
                             fig.add_subplot(111)
+                            fig = plt.gcf() # clear figure
                             # ax = fig.add_subplot(1, 1, 1, projection='2d')
                             X = np.linspace(-5.0, 5.0, num=50)
                             Y = [f.subs(x1, x) for x in X]
@@ -157,18 +162,19 @@ def runProgram():
                             plt.ylabel('f(x1)')
                             plt.grid()
                             draw_figure_w_toolbar(window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
-                            logger.info("Poprawnie udało się narysować wykres.")
+                            logger.info("Udało się narysować wykres.")
 
                         elif n==2:
-                            logger.info("2 zmienne. Wykres 3D + warstwice.")
+                            logger.info("===ROZPOZNANO RÓWNANIE Z 2 ZMIENNYMI===")
+                            logger.info("Wykres 3D + warstwice.")
 
 
 
                         else:
-                            logger.info("3, 4 lub 5 zmiennych lub wystąpił błąd. Do nothing.")
+                            logger.info("===ROZPOZNANO RÓWNANIE Z 3 LUB WIĘCEJ ZMIENNYMI===")
+                            logger.info("Brak wykresu. Do nothing.")
 
 
-                        
                     except:
                         logger.info("Błąd przy próbie narysowania funkcji.")
 
