@@ -47,16 +47,22 @@ def windowInit():
                     [
                     sg.Checkbox('Zatwierdź kostkę', size=(15,1), key='-CONFIRM_CUBE-',default=False, enable_events=True),
                     ],
+                    *[[
+                        sg.Input(key=f'-MIN_{i}-',size=(5,1),default_text="-10"),
+                        sg.T(f'<= x{i} <='),
+                        sg.Input(key=f'-MAX_{i}-',size=(5,1),default_text="10"),
+                        # sg.CB(f'Zatwierdź ograniczenie x{i}')
+                        ] for i in range(5)],
                 ],
                 title = 'Kostka',
                 tooltip = 'Użyj tego pola do ograniczenia zmiennych xi',
                 relief = sg.RELIEF_SUNKEN
                 ),
-            sg.VSeperator(),
+            # sg.VSeperator(),
             sg.Frame(
                 layout=[
                     [
-                    sg.Checkbox('Zatwierdź ograniczenia', size=(15,1), key='-CONFIRM_RESTRICTIONS-',default=False, enable_events=True),
+                    sg.Checkbox('Zatwierdź ograniczenia', size=(20,1), key='-CONFIRM_RESTRICTIONS-',default=False, enable_events=True),
                     ],
                 ],
                 title = 'Ograniczenia',
@@ -212,96 +218,96 @@ def runProgram():
             window.FindElement('-GENERATE-').Update(disabled=True)
 
 
-        # ### Generate function
-        # if event == "-GENERATE-":
-        #     folder = values["-FUNCTION-"]
+        ### Generate function
+        if event == "-GENERATE-":
+            folder = values["-FUNCTION-"]
 
-        #     try:    # parse function
-        #         f = eval(folder)
-        #         parsedString = str(f)
-        #     except:
-        #         logger.info("Błąd podczas rozparsowywania funkcji. Zmień wzór i kliknij 'Generuj'.")
-        #     else:
-        #         logger.info(f"Pomyślnie rozparsowano funkcję: f() = {parsedString}")
-        #         try:    # get and count variables
-        #             occuringVariables = f.atoms(Symbol)
-        #             strOccuringVariables = str(occuringVariables)
-        #             n = len(strOccuringVariables.split())
-        #         except:
-        #             logger.info("Nie mogłem policzyć zmiennych w równaniu funkcji celu.")
-        #         else:
-        #             logger.info(f"Występujące zmienne: {strOccuringVariables}. N={n}.")
+            try:    # parse function
+                f = eval(folder)
+                parsedString = str(f)
+            except:
+                logger.info("Błąd podczas rozparsowywania funkcji. Zmień wzór i kliknij 'Generuj'.")
+            else:
+                logger.info(f"Pomyślnie rozparsowano funkcję: f() = {parsedString}")
+                try:    # get and count variables
+                    occuringVariables = f.atoms(Symbol)
+                    strOccuringVariables = str(occuringVariables)
+                    n = len(strOccuringVariables.split())
+                except:
+                    logger.info("Nie mogłem policzyć zmiennych w równaniu funkcji celu.")
+                else:
+                    logger.info(f"Występujące zmienne: {strOccuringVariables}. N={n}.")
 
-        #             ### Zmienne muszą być podawane po kolei!
-        #             ### Jeśli n=3, to występują x1, x2 i x3!
-        #             try:    # draw function
-        #                 if n==1:
-        #                     logger.info("===ROZPOZNANO RÓWNANIE Z 1 ZMIENNĄ===")
-        #                     logger.info("Tylko wykres 2D.")
-        #                     fig.add_subplot(111)
-        #                     fig = plt.gcf() # clear figure
-        #                     # ax = fig.add_subplot(1, 1, 1, projection='2d')
-        #                     X = np.linspace(-5.0, 5.0, num=50)
-        #                     Y = [f.subs(x1, x) for x in X]
-        #                     plt.plot(X, Y)
-        #                     plt.title(f'f(x1)={str(f)}')
-        #                     plt.xlabel('x1')
-        #                     plt.ylabel('f(x1)')
-        #                     plt.grid()
-        #                     draw_figure_w_toolbar(window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
-        #                     logger.info("Udało się narysować wykres.")
+                    ### Zmienne muszą być podawane po kolei!
+                    ### Jeśli n=3, to występują x1, x2 i x3!
+                    try:    # draw function
+                        if n==1:
+                            logger.info("===ROZPOZNANO RÓWNANIE Z 1 ZMIENNĄ===")
+                            logger.info("Tylko wykres 2D.")
+                            fig.add_subplot(111)
+                            fig = plt.gcf() # clear figure
+                            # ax = fig.add_subplot(1, 1, 1, projection='2d')
+                            X = np.linspace(-5.0, 5.0, num=50)
+                            Y = [f.subs(x1, x) for x in X]
+                            plt.plot(X, Y)
+                            plt.title(f'f(x1)={str(f)}')
+                            plt.xlabel('x1')
+                            plt.ylabel('f(x1)')
+                            plt.grid()
+                            draw_figure_w_toolbar(window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+                            logger.info("Udało się narysować wykres.")
 
-        #                 elif n==2:
-        #                     logger.info("===ROZPOZNANO RÓWNANIE Z 2 ZMIENNYMI===")
-        #                     logger.info("Wykres 3D + warstwice.")
-
-
-
-        #                 else:
-        #                     logger.info("===ROZPOZNANO RÓWNANIE Z 3 LUB WIĘCEJ ZMIENNYMI===")
-        #                     logger.info("Brak wykresu. Do nothing.")
+                        elif n==2:
+                            logger.info("===ROZPOZNANO RÓWNANIE Z 2 ZMIENNYMI===")
+                            logger.info("Wykres 3D + warstwice.")
 
 
-        #             except:
-        #                 logger.info("Błąd przy próbie narysowania funkcji.")
 
-        # if event == "-GENERATE_MOCK-":
-        #     # ------------------------------- PASTE YOUR MATPLOTLIB CODE HERE
-        #     # plt.figure(1)
-        #     # fig = plt.gcf()
-        #     # DPI = fig.get_dpi()
-        #     # ------------------------------- you have to play with this size to reduce the movement error when the mouse hovers over the figure, it's close to canvas size
-        #     # sizeOfFigure = 600
-        #     # fig.set_size_inches(sizeOfFigure/DPI, sizeOfFigure/DPI)
-        #     # -------------------------------
-        #     # x = np.linspace(0, 2 * np.pi)
-        #     # y = np.sin(x)
-        #     # plt.plot(x, y)
-        #     # plt.title('y=sin(x)')
-        #     # plt.xlabel('X')
-        #     # plt.ylabel('Y')
-        #     # plt.grid()
+                        else:
+                            logger.info("===ROZPOZNANO RÓWNANIE Z 3 LUB WIĘCEJ ZMIENNYMI===")
+                            logger.info("Brak wykresu. Do nothing.")
 
 
-        #     # X = np.arange(-5, 5, 0.25)
-        #     # Y = np.arange(-5, 5, 0.25)
-        #     # X, Y = np.meshgrid(X, Y)
-        #     # Z = np.sin(np.sqrt(X**2 + Y**2))
-        #     # plt.plot(X, Y, Z)
+                    except:
+                        logger.info("Błąd przy próbie narysowania funkcji.")
 
-        #     ax = fig.add_subplot(1, 1, 1, projection='3d')
+        if event == "-GENERATE_MOCK-":
+            # ------------------------------- PASTE YOUR MATPLOTLIB CODE HERE
+            # plt.figure(1)
+            # fig = plt.gcf()
+            # DPI = fig.get_dpi()
+            # ------------------------------- you have to play with this size to reduce the movement error when the mouse hovers over the figure, it's close to canvas size
+            # sizeOfFigure = 600
+            # fig.set_size_inches(sizeOfFigure/DPI, sizeOfFigure/DPI)
+            # -------------------------------
+            # x = np.linspace(0, 2 * np.pi)
+            # y = np.sin(x)
+            # plt.plot(x, y)
+            # plt.title('y=sin(x)')
+            # plt.xlabel('X')
+            # plt.ylabel('Y')
+            # plt.grid()
 
-        #     # plot a 3D surface like in the example mplot3d/surface3d_demo
-        #     X = np.arange(-5, 5, 0.25)
-        #     Y = np.arange(-5, 5, 0.25)
-        #     X, Y = np.meshgrid(X, Y)
-        #     Z = np.sin(np.sqrt(X**2 + Y**2))
-        #     surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
-        #     ax.set_zlim(-1.01, 1.01)
-        #     fig.colorbar(surf, shrink=0.5, aspect=10)
 
-        #     # ------------------------------- Instead of plt.show()
-        #     draw_figure_w_toolbar(window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+            # X = np.arange(-5, 5, 0.25)
+            # Y = np.arange(-5, 5, 0.25)
+            # X, Y = np.meshgrid(X, Y)
+            # Z = np.sin(np.sqrt(X**2 + Y**2))
+            # plt.plot(X, Y, Z)
+
+            ax = fig.add_subplot(1, 1, 1, projection='3d')
+
+            # plot a 3D surface like in the example mplot3d/surface3d_demo
+            X = np.arange(-5, 5, 0.25)
+            Y = np.arange(-5, 5, 0.25)
+            X, Y = np.meshgrid(X, Y)
+            Z = np.sin(np.sqrt(X**2 + Y**2))
+            surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+            ax.set_zlim(-1.01, 1.01)
+            fig.colorbar(surf, shrink=0.5, aspect=10)
+
+            # ------------------------------- Instead of plt.show()
+            draw_figure_w_toolbar(window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
 
 
     window.close()
