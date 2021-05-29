@@ -140,6 +140,7 @@ def runProgram():
     ### Window initialization
     window = windowInit()
     
+    
     ### Update buttons logic
     widgetsToDeactivateAtStart = ['-CONFIRM_CUBE-', '-CONFIRM_RESTRICTIONS-', '-GENERATE-']
     ### disable widgets @ start
@@ -160,7 +161,8 @@ def runProgram():
         
         if event in (sg.WIN_CLOSED, 'Exit'):
             break
-        ### enable confirming cube & restrictions
+
+        ### onConfirmFunction enable confirming cube & restrictions
         if event == '-CONFIRM_FUNCTION-':
             if values['-CONFIRM_FUNCTION-']==True:  # means if it has been checked
                 try:    # parse function
@@ -184,10 +186,30 @@ def runProgram():
                         window.FindElement(w).Update(disabled=False)
                     ### show info
                     logger.info(f"Pomyślnie rozparsowano funkcję: f() = {parsedString}")
-            if values['-CONFIRM_FUNCTION-']==False:  # it was checked false
+            elif values['-CONFIRM_FUNCTION-']==False:  # it was checked false
                 ### unblock function to edit
-                window.FindElement('-FUNCTION-').Update(disabled=True)
+                window.FindElement('-FUNCTION-').Update(disabled=False)
+                ### block Cube and Restruction checkboxes and uncheck them
+                window.FindElement('-CONFIRM_CUBE-').Update(disabled=True, value=False)
+                window.FindElement('-CONFIRM_RESTRICTIONS-').Update(disabled=True, value = False)
 
+        if event=='-CONFIRM_CUBE-':
+            if values['-CONFIRM_CUBE-']==True:
+                pass
+            elif values['-CONFIRM_CUBE-']==False:
+                pass
+
+        elif event=='-CONFIRM_RESTRICTIONS-':
+            if values['-CONFIRM_RESTRICTIONS-']==True:
+                pass
+            elif values['-CONFIRM_RESTRICTIONS-']==False:
+                pass
+        
+        ### when all 3 are True => enable Generate key
+        if values['-CONFIRM_FUNCTION-']==values['-CONFIRM_CUBE-']==values['-CONFIRM_RESTRICTIONS-']==True:
+            window.FindElement('-GENERATE-').Update(disabled=False)
+        else:
+            window.FindElement('-GENERATE-').Update(disabled=True)
 
 
         # ### Generate function
