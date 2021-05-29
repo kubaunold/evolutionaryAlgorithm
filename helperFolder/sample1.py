@@ -51,10 +51,10 @@ layout= [
     [sg.Text('my GUI', size=(40,1),justification='c', font=("Arial 10"))],
     [sg.Text('Browse to file:'), sg.Input(size=(40,1), key='input'),sg.FileBrowse (key='filebrowse')],
 
-    [sg.Button('Process' ,bind_return_key=True), 
-     sg.Radio('1',key= 'RADIO1',group_id='1', enable_events = True,default=False, size=(10,1)),
-          sg.Radio('2', key= 'RADIO2',group_id='1',enable_events = True, default=False, size=(10,1)),
-           sg.Radio('3', key='RADIO3',group_id='1',enable_events = True, default=False, size=(12,1))],
+    [sg.Button('Process' ,bind_return_key=True),
+    sg.Radio('1',key= 'RADIO1',group_id='1', enable_events = True,default=False, size=(10,1)),
+    sg.Radio('2', key= 'RADIO2',group_id='1',enable_events = True, default=False, size=(10,1)),
+    sg.Radio('3', key='RADIO3',group_id='1',enable_events = True, default=False, size=(12,1))],
 
     [sg.Canvas(size=(200,200), background_color='white',key='-CANVAS-')],
     [sg.Exit()]] 
