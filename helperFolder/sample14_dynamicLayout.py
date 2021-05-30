@@ -4,15 +4,19 @@ col = [[sg.Button('Button 1'),] for i in range(10)]
 col2 = [[sg.Slider((1,10)) for i in range(10)]]
 
 num_buttons = 2
-layout = [[sg.Text('Your typed chars appear here:'), sg.Text('', key='_OUTPUT_')],
-            [sg.Input(do_not_clear=True, key='_IN_')],
-            *[[sg.Button('Button'),] for i in range(num_buttons)],
-            [sg.Slider(range=(1,100), text_color='white', orientation='h', key='SLIDER'),
-            sg.Drop(('Choice 1', 'choice 2'), key='DROP'), sg.Stretch()],
-            [sg.Button('Detailed Info'), sg.Button('Delete Rows' ), sg.Button('Disappear') ,sg.Button('Reappear')],
-            [sg.Button('Show Sliders'), sg.Button('Show Buttons'), sg.Button('Hide Sliders') ,sg.Button('Hide Buttons') , sg.Button('Exit')],
-            [sg.Column(col, key='COL', visible=False), sg.Column(col2, key='COL2', visible=False)]
-          ]
+layout= [
+    [sg.Text('Your typed chars appear here:'), sg.Text('', key='_OUTPUT_'),],
+    [sg.Input(do_not_clear=True, key='_IN_')],
+    *[[sg.Button('Button'),] for i in range(num_buttons)],
+    [sg.Slider(range=(1,100), text_color='white', orientation='h', key='SLIDER'), sg.Drop(('Choice 1', 'choice 2'), key='DROP'), sg.Stretch()],
+    [sg.Button('Detailed Info'), sg.Button('Delete Rows' ), sg.Button('Disappear') ,sg.Button('Reappear')],
+    [sg.Button('Show Sliders'), sg.Button('Show Buttons'), sg.Button('Hide Sliders') ,sg.Button('Hide Buttons') , sg.Button('Exit')],
+    [sg.Column(col, key='COL', visible=False), sg.Column(col2, key='COL2', visible=False)]
+
+]
+
+
+          
 
 window = sg.Window('Window Title', resizable=True).Layout(layout).Finalize()
 
