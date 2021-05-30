@@ -27,6 +27,15 @@ def variablesInit():
 
 
 def windowInit():
+    def disableCubeRow(i):
+        window.Element(f'minVal_{i}').Update(visible=False)
+        window.Element(f'cubeTextRange_{i}').Update(visible=False)
+        window.Element(f'maxVal_{i}').Update(visible=False)
+        # window.Element(f'vSep_x{i}').Update(visible=False)
+        window.Element(f'cubeTextResolution_{i}').Update(visible=False)
+        window.Element(f'res_{i}').Update(visible=False)
+        return
+
     sg.theme('LightBrown1')
     # sg.theme('HotDogStand')   # funny theme
 
@@ -34,29 +43,48 @@ def windowInit():
     use_agg('TkAgg')
 
     ### Layout Definition
+    # cube_layout = 
+    # oneCubeRow = [[]]
+
     # first column of a layout
     function_definition_column = [
-        [sg.T("Podaj wzór funkcji wykorzystując następujące zmienne w podanej kolejności:\nx1, x2, x3, x4, x5.")],
-        [
-            sg.Text("f(xi)="), sg.In(size=(30, 1), key="-FUNCTION-"),
-            sg.Checkbox('Zatwierdź funkcję', size=(15,1), key='-CONFIRM_FUNCTION-',default=False,enable_events=True),
+        [   
+            ### FUNCTION
+            sg.Frame(
+                layout=[
+                    [sg.T("Podaj wzór funkcji wykorzystując następujące zmienne w podanej kolejności:\nx1, x2, x3, x4, x5.")],
+                    [
+                        sg.Text("f(xi)="), sg.In(size=(30, 1), key="-FUNCTION-"),
+                        sg.Checkbox('Zatwierdź funkcję', size=(15,1), key='-CONFIRM_FUNCTION-',default=False,enable_events=True)
+                    ],
+                ],
+                title = 'Funkcja',
+                key = 'function_frame',
+                relief = sg.RELIEF_GROOVE, #GROOVE is normal, nice looking
+            )
+            
         ],
         [
+            ### CUBE & RESTRICTIONS
             sg.Frame(
                 layout=[
                     [
                     sg.Checkbox('Zatwierdź kostkę', size=(15,1), key='-CONFIRM_CUBE-',default=False, enable_events=True),
                     ],
                     *[[
-                        sg.Input(key=f'-MIN_{i}-',size=(5,1),default_text="-10"),
-                        sg.T(f'<= x{i} <='),
-                        sg.Input(key=f'-MAX_{i}-',size=(5,1),default_text="10"),
+                        sg.Input(key=f'minVal_{i}',size=(5,1),default_text="-10",tooltip=f'Minimalna wartość zmiennej x{i}'),
+                        sg.T(f'<=x{i}<=', key=f'cubeTextRange_{i}'),
+                        sg.Input(key=f'maxVal_{i}',size=(5,1),default_text="10",tooltip=f'Maksymalna wartość zmiennej x{i}'),
+                        # sg.VSeperator(key=f'vSep_x{i}'),
+                        sg.T(f'rozdzielczość x{i}:',key=f'cubeTextResolution_{i}',tooltip=f'Suwakiem ustal generowaną liczbę punktów dla zmiennej x{i}'),
+                        sg.Slider(range=(10,200),default_value=70,size=(18,8),orientation='horizontal',font=('Helvetica', 10),tooltip=f'Suwakiem ustal generowaną liczbę punktów dla zmiennej x{i}',key=f'res_{i}')
                         # sg.CB(f'Zatwierdź ograniczenie x{i}')
-                        ] for i in range(5)],
+                        ] for i in range(1,6)],
+                    
                 ],
                 title = 'Kostka',
-                tooltip = 'Użyj tego pola do ograniczenia zmiennych xi',
-                relief = sg.RELIEF_SUNKEN
+                # tooltip = 'Użyj tego pola do ograniczenia zmiennych xi',
+                # relief = sg.RELIEF_SUNKEN
                 ),
             # sg.VSeperator(),
             sg.Frame(
@@ -67,7 +95,7 @@ def windowInit():
                 ],
                 title = 'Ograniczenia',
                 tooltip = 'Użyj tego pola do wprowadzenia ograniczeń',
-                relief = sg.RELIEF_SUNKEN
+                relief = sg.RELIEF_GROOVE
                 ),
             
         ],
@@ -109,6 +137,19 @@ def windowInit():
         # font=('Helvetica', ' 10'),
         # default_button_element_size=(8, 2),
         finalize=True)
+
+    ### Hide some elements @ start
+    # disable confirming Cube, Restrictions & Generate
+    widgetsToDeactivateAtStart = ['-CONFIRM_CUBE-', '-CONFIRM_RESTRICTIONS-', '-GENERATE-']
+    for widget_label in widgetsToDeactivateAtStart:
+        window.FindElement(widget_label).Update(disabled=True)
+    # disable rows of Cube
+    for i in range(1,6):    # 1, 2, 3, 4, 5
+        disableCubeRow(i)
+
+
+
+
     return window
 
 def loggerInit(window, keyOfLoggerWindow):
@@ -147,11 +188,7 @@ def runProgram():
     window = windowInit()
     
     
-    ### Update buttons logic
-    widgetsToDeactivateAtStart = ['-CONFIRM_CUBE-', '-CONFIRM_RESTRICTIONS-', '-GENERATE-']
-    ### disable widgets @ start
-    for widget_label in widgetsToDeactivateAtStart:
-        window.FindElement(widget_label).Update(disabled=True)
+    
 
     ### Logger initialization
     logger = loggerInit(window, keyOfLoggerWindow)
@@ -192,12 +229,16 @@ def runProgram():
                         window.FindElement(w).Update(disabled=False)
                     ### show info
                     logger.info(f"Pomyślnie rozparsowano funkcję: f() = {parsedString}")
-            elif values['-CONFIRM_FUNCTION-']==False:  # it was checked false
+            elif values['-CONFIRM_FUNCTION-']==False:  # it was unchecked
                 ### unblock function to edit
                 window.FindElement('-FUNCTION-').Update(disabled=False)
                 ### block Cube and Restruction checkboxes and uncheck them
                 window.FindElement('-CONFIRM_CUBE-').Update(disabled=True, value=False)
                 window.FindElement('-CONFIRM_RESTRICTIONS-').Update(disabled=True, value = False)
+                
+                
+
+
 
         if event=='-CONFIRM_CUBE-':
             if values['-CONFIRM_CUBE-']==True:
