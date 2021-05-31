@@ -154,7 +154,7 @@ def windowInit():
 
         ],
         # [sg.Button("Generuj", key="-GENERATE-", button_color=('white', 'green'))],
-        [sg.Button("Generuj", key="-GENERATE-")],
+        [sg.Button("Rysuj funkcję", key="-GENERATE-")],
         [sg.Button("GenerujMockData", key="-GENERATE_MOCK-")],
         [sg.Output(size=(100, 10), key=keyOfLoggerWindow)],
     ]
@@ -367,9 +367,16 @@ def runProgram():
                                 "===ROZPOZNANO RÓWNANIE Z 1 ZMIENNĄ===")
                             logger.info("Tylko wykres 2D.")
                             fig.add_subplot(111)
-                            fig = plt.gcf()  # clear figure
+                            # plt.gcf()  # clear figure
+                            plt.clf()   # clear figure
+                            plt.cla()   # clear axes
+                            draw_figure_w_toolbar(
+                                window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
                             # ax = fig.add_subplot(1, 1, 1, projection='2d')
-                            X = np.linspace(-5.0, 5.0, num=50)
+                            x1min = eval(values['iMin1'])
+                            x1max = eval(values['iMax1'])
+                            x1res = int(values['sRes1'])
+                            X = np.linspace(x1min, x1max, num=x1res)
                             Y = [f.subs(x1, x) for x in X]
                             plt.plot(X, Y)
                             plt.title(f'f(x1)={str(f)}')
@@ -385,13 +392,20 @@ def runProgram():
                                 "===ROZPOZNANO RÓWNANIE Z 2 ZMIENNYMI===")
                             logger.info("Wykres 3D + warstwice.")
 
+
                         else:
                             logger.info(
                                 "===ROZPOZNANO RÓWNANIE Z 3 LUB WIĘCEJ ZMIENNYMI===")
-                            logger.info("Brak wykresu. Do nothing.")
+                            logger.info("Brak wykresu.")
 
-                    except Exception:
-                        logger.info("Błąd przy próbie narysowania funkcji.")
+                    except Exception as e:
+                        logger.info(f"Błąd przy próbie narysowania funkcji: {e}.")
+
+
+
+
+
+
 
         if event == "-addRest-":    # add a restriction
             ### restriction to add
