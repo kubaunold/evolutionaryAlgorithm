@@ -1,7 +1,7 @@
 # app.py
-from tkinter import Frame
+from tkinter import Frame, font
 from tkinter.constants import DISABLED
-from PySimpleGUI.PySimpleGUI import theme_text_element_background_color
+from PySimpleGUI.PySimpleGUI import T, theme_text_element_background_color
 from sympy import symbols   # for symbolic math
 from sympy import Number, NumberSymbol, Symbol
 import numpy as np
@@ -21,7 +21,9 @@ import logging
 keyOfLoggerWindow = '-LOG-'
 loggerFileName = "log.txt"
 
-loe = '\u2264'  # Less or equal sign (<=)
+char_loe = '\u2264'  # Less or equal sign (<=)
+char_xVector = '\u0078'
+char_xVector = '\u2179'
 
 
 def variablesInit():
@@ -76,8 +78,8 @@ def windowInit():
                     [sg.T(
                         "Podaj wzór funkcji wykorzystując następujące zmienne w podanej kolejności:\nx1, x2, x3, x4, x5.")],
                     [
-                        sg.Text("f(xi)="), sg.In(
-                            size=(30, 1), key="-FUNCTION-"),
+                        sg.Text(f"f({char_xVector})="),
+                        sg.In(size=(30, 1), key="-FUNCTION-"),
                         sg.Checkbox('Zatwierdź funkcję', size=(
                             15, 1), key='-CONFIRM_FUNCTION-', default=False, enable_events=True)
                     ],
@@ -100,7 +102,7 @@ def windowInit():
                         sg.T(f'x{i}: ', key=f'tXNo{i}', font=('Arial', 10, 'bold')),
                         sg.Input(key=f'iMin{i}', size=(
                             5, 1), default_text="-10", tooltip=f'Minimalna wartość zmiennej x{i}'),
-                        sg.T(f'{loe} x{i} {loe}', key=f'cubeTextRange_{i}'),
+                        sg.T(f'{char_loe} x{i} {char_loe}', key=f'cubeTextRange_{i}'),
                         sg.Input(key=f'iMax{i}', size=(
                             5, 1), default_text="10", tooltip=f'Maksymalna wartość zmiennej x{i}'),
                         # sg.VSeperator(key=f'vSep_x{i}'),
@@ -116,18 +118,39 @@ def windowInit():
                 # tooltip = 'Użyj tego pola do ograniczenia zmiennych xi',
                 # relief = sg.RELIEF_SUNKEN
             ),
-            # sg.VSeperator(),
+
             sg.Frame(
                 layout=[
                     [
                         sg.Checkbox('Zatwierdź ograniczenia', size=(
                             20, 1), key='-CONFIRM_RESTRICTIONS-', default=False, enable_events=True),
                     ],
+                    *[[
+                        sg.T(f'g{i}({char_xVector}): '),
+                        sg.In(size=(25, 1), key=f"-REST{i}-"),
+                        sg.T(f'{char_loe} 0'),
+                        sg.Checkbox('Zatwierdź', key=f'-CONFIRM_REST{i}-', enable_events=True)
+                    ] for i in range(1, 6)],
                 ],
                 title='Ograniczenia',
                 tooltip='Użyj tego pola do wprowadzenia ograniczeń',
                 relief=sg.RELIEF_GROOVE
             ),
+
+            # sg.Frame(
+            #     layout=[
+            #         [
+            #             sg.Checkbox('Zatwierdź ograniczenia', size=(
+            #                 20, 1), key='-CONFIRM_RESTRICTIONS-', default=False, enable_events=True),
+            #         ],
+            #         [sg.Listbox(key='lbRest',values=[]),sg.T(f'{char_loe} 0')],
+            #         [sg.In(key='-REST-', size=(30,40)),sg.T(f'{char_loe} 0')],
+            #         [sg.B("Dodaj",key="-addRest-"), sg.B("Usuń",key="-rmRest-")]
+            #     ],
+            #     title='Ograniczenia',
+            #     tooltip='Użyj tego pola do wprowadzenia ograniczeń',
+            #     relief=sg.RELIEF_GROOVE
+            # ),
 
         ],
         # [sg.Button("Generuj", key="-GENERATE-", button_color=('white', 'green'))],
@@ -324,7 +347,7 @@ def runProgram():
                     "Błąd podczas rozparsowywania funkcji. Zmień wzór i kliknij 'Generuj'.")
             else:
                 logger.info(
-                    f"Pomyślnie rozparsowano funkcję: f() = {parsedString}")
+                    f"Pomyślnie rozparsowano funkcję: f({char_xVector}) = {parsedString}")
                 try:    # get and count variables
                     occuringVariables = f.atoms(Symbol)
                     strOccuringVariables = str(occuringVariables)
@@ -369,6 +392,42 @@ def runProgram():
 
                     except Exception:
                         logger.info("Błąd przy próbie narysowania funkcji.")
+
+        if event == "-addRest-":    # add a restriction
+            ### restriction to add
+            # restta = values["-REST-"]
+            # print(restta)
+            try:    # parse function
+                restta = eval(values["-REST-"])
+                occvar_no = -1
+                if type(restta) in [int, float]:
+                    occvar_no = 0
+                # else:
+                    # occvar_no = len(str(restta.atoms(Symbol)).split()) #occuring vars
+
+                if occvar_no == 0:
+                    err = "Musi występować przynajmniej x1."
+                    raise Exception(err)
+                restta_str = str(restta)
+            except Exception as e:
+                logger.error(f"Podczas rozparsowania ograniczenia: {e}")
+                window['-CONFIRM_RESTRICTIONS-'].Update(value=False)
+            else:
+                # check if no more than 5
+                nor = len(values["lbRest"])
+                print(f"Current number of rests: {nor}")
+                if len(values["lbRest"]) <= 5:
+                    try:    # add a rest
+                        window['lbRest'].Update(values=values["lbRest"].append(restta_str))
+                        window.refresh()
+                    except Exception as e:
+                        logger.error(f"Podczas dodawania ograniczenia: {e}")
+
+
+
+
+
+
 
         if event == "-GENERATE_MOCK-":
             # ------------------------------- PASTE YOUR MATPLOTLIB CODE HERE
