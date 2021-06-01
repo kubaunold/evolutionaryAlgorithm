@@ -17,28 +17,30 @@ import matplotlib.pyplot as plt
 
 import logging
 
+from functionClass import Function, x1, x2, x3, x4, x5
+
 # GLOBAL VARIABLES
 keyOfLoggerWindow = '-LOG-'
 loggerFileName = "log.txt"
 
-char_loe = '\u2264'  # Less or equal sign (<=)
-char_xVector = '\u0078'
-char_xVector = '\u2179'
+CHAR_LOE = '\u2264'  # Less or equal sign (<=)
+CHAR_XVEC = '\u0078'
+CHAR_XVEC = '\u2179'
 
 
-def variablesInit():
-    # n <= 5
-    x1, x2, x3, x4, x5 = symbols('x1 x2 x3 x4 x5')
 
-    return x1, x2, x3, x4, x5
 
-### Some helper functions
+# Some helper functions
+
+
 def enableCubeRow(i, window):
     green_bg = '#68f26d'
     window.Element(f'tXNo{i}').Update(text_color='green')
-    window.Element(f'iMin{i}').Update(disabled=False,background_color=green_bg)
+    window.Element(f'iMin{i}').Update(
+        disabled=False, background_color=green_bg)
     # window.Element(f'tCubeRng{i}').Update(disabled=False) ### text can't be disabled!
-    window.Element(f'iMax{i}').Update(disabled=False,background_color=green_bg)
+    window.Element(f'iMax{i}').Update(
+        disabled=False, background_color=green_bg)
     # window.Element(f'tCubeRes{i}').Update(disabled=False)
     window.Element(f'sRes{i}').Update(disabled=False)
     window.Refresh()
@@ -46,11 +48,12 @@ def enableCubeRow(i, window):
 
 
 def disableCubeRow(i, window):
-    red_bg='#d93838'    ### won't do - disabled don't have any color
+    red_bg = '#d93838'  # won't do - disabled don't have any color
     window.Element(f'iMin{i}').Update(background_color=red_bg)
     window.Element(f'tXNo{i}').Update(text_color='red')
-    window.Element(f'iMin{i}').Update(disabled=True,background_color=red_bg)    # won't turn red :(
-    window.Element(f'iMax{i}').Update(disabled=True,background_color=red_bg)
+    window.Element(f'iMin{i}').Update(
+        disabled=True, background_color=red_bg)    # won't turn red :(
+    window.Element(f'iMax{i}').Update(disabled=True, background_color=red_bg)
     window.Element(f'sRes{i}').Update(disabled=True)
     window.Refresh()
     return
@@ -68,7 +71,6 @@ def windowInit():
     # cube_layout =
     # allCubeRows = [[sg.Slider((1,10), key=f"slider_x{i}") for i in range(1,6)]]
 
-
     # first column of a layout
     function_definition_column = [
         [
@@ -78,7 +80,7 @@ def windowInit():
                     [sg.T(
                         "Podaj wzór funkcji wykorzystując następujące zmienne w podanej kolejności:\nx1, x2, x3, x4, x5.")],
                     [
-                        sg.Text(f"f({char_xVector})="),
+                        sg.Text(f"f({CHAR_XVEC})="),
                         sg.In(size=(30, 1), key="-FUNCTION-"),
                         sg.Checkbox('Zatwierdź funkcję', size=(
                             15, 1), key='-CONFIRM_FUNCTION-', default=False, enable_events=True)
@@ -99,10 +101,12 @@ def windowInit():
                             15, 1), key='-CONFIRM_CUBE-', default=False, enable_events=True),
                     ],
                     *[[
-                        sg.T(f'x{i}: ', key=f'tXNo{i}', font=('Arial', 10, 'bold')),
+                        sg.T(f'x{i}: ', key=f'tXNo{i}',
+                             font=('Arial', 10, 'bold')),
                         sg.Input(key=f'iMin{i}', size=(
                             5, 1), default_text="-10", tooltip=f'Minimalna wartość zmiennej x{i}'),
-                        sg.T(f'{char_loe} x{i} {char_loe}', key=f'cubeTextRange_{i}'),
+                        sg.T(f'{CHAR_LOE} x{i} {CHAR_LOE}',
+                             key=f'cubeTextRange_{i}'),
                         sg.Input(key=f'iMax{i}', size=(
                             5, 1), default_text="10", tooltip=f'Maksymalna wartość zmiennej x{i}'),
                         # sg.VSeperator(key=f'vSep_x{i}'),
@@ -126,10 +130,11 @@ def windowInit():
                             20, 1), key='-CONFIRM_RESTRICTIONS-', default=False, enable_events=True),
                     ],
                     *[[
-                        sg.T(f'g{i}({char_xVector}): '),
+                        sg.T(f'g{i}({CHAR_XVEC}): '),
                         sg.In(size=(25, 1), key=f"-REST{i}-"),
-                        sg.T(f'{char_loe} 0'),
-                        sg.Checkbox('Zatwierdź', key=f'-CONFIRM_REST{i}-', enable_events=True)
+                        sg.T(f'{CHAR_LOE} 0'),
+                        sg.Checkbox(
+                            'Zatwierdź', key=f'-CONFIRM_REST{i}-', enable_events=True)
                     ] for i in range(1, 6)],
                 ],
                 title='Ograniczenia',
@@ -143,8 +148,8 @@ def windowInit():
             #             sg.Checkbox('Zatwierdź ograniczenia', size=(
             #                 20, 1), key='-CONFIRM_RESTRICTIONS-', default=False, enable_events=True),
             #         ],
-            #         [sg.Listbox(key='lbRest',values=[]),sg.T(f'{char_loe} 0')],
-            #         [sg.In(key='-REST-', size=(30,40)),sg.T(f'{char_loe} 0')],
+            #         [sg.Listbox(key='lbRest',values=[]),sg.T(f'{CHAR_LOE} 0')],
+            #         [sg.In(key='-REST-', size=(30,40)),sg.T(f'{CHAR_LOE} 0')],
             #         [sg.B("Dodaj",key="-addRest-"), sg.B("Usuń",key="-rmRest-")]
             #     ],
             #     title='Ograniczenia',
@@ -237,8 +242,9 @@ class Toolbar(NavigationToolbar2Tk):
 
 
 def runProgram():
-    # Variables initailization
-    x1, x2, x3, x4, x5 = variablesInit()
+    # function object initialization
+    fo = Function()
+
     # Window initialization
     window = windowInit()
 
@@ -248,8 +254,6 @@ def runProgram():
     # fig = plt.figure(figsize=plt.figaspect(0.5))
 
     fig = plt.figure()
-
-    # ax = fig.add_subplot(2, 2, 1, projection='3d')
 
     while True:
         event, values = window.read(timeout=10)
@@ -261,13 +265,11 @@ def runProgram():
         if event == '-CONFIRM_FUNCTION-':
             if values['-CONFIRM_FUNCTION-'] == True:  # means if it has been checked
                 try:    # parse function
-                    folder = values["-FUNCTION-"]
-                    f = eval(folder)
-                    parsedString = str(f)
-                except Exception:
+                    fo.parseFunction(values["-FUNCTION-"])
+                except Exception as e:
                     # uncheck confirmFunction checkbox
                     window['-CONFIRM_FUNCTION-'].Update(value=False)
-                    err = "Błąd podczas rozparsowywania funkcji. Zmień wzór i zatwierdź."
+                    err = f"Błąd podczas rozparsowywania funkcji: {e}. Zmień wzór i zatwierdź."
                     logger.error(err)
                     # sg.PopupAnnoying(err ,background_color='blue')
                     sg.popup(err, button_color=('#ffffff', '#797979'))
@@ -280,33 +282,30 @@ def runProgram():
                         '-CONFIRM_CUBE-', '-CONFIRM_RESTRICTIONS-']
                     for w in enableWidgetsOnFuntionConfirm:
                         window.FindElement(w).Update(disabled=False)
-                        
-                    
-                    # show info
+
                     logger.info(
-                        f"Pomyślnie rozparsowano funkcję: f() = {parsedString}")
+                        f"Pomyślnie rozparsowano funkcję: f({CHAR_XVEC}) = {fo.strFunction}")
 
                     try:    # get and count variables
-                        occuringVariables = f.atoms(Symbol)
-                        strOccuringVariables = str(occuringVariables)
-                        n = len(strOccuringVariables.split())
-                    except Exception:
+                        fo.lOccVars = fo.function.atoms(Symbol)
+                        fo.n = len(str(fo.lOccVars).split())
+                    except Exception as e:
                         logger.info(
-                            "Nie mogłem policzyć zmiennych w równaniu funkcji celu.")
+                            f"Nie mogłem policzyć zmiennych w równaniu funkcji celu: {e}.")
                     else:
                         logger.info(
-                            f"Występujące zmienne: {strOccuringVariables}. N={n}.")
+                            f"Występujące zmienne: {str(fo.lOccVars)}. N={fo.n}.")
 
                         # Zmienne muszą być podawane po kolei!
                         # Jeśli n=3, to występują x1, x2 i x3!
-                        try:    ### enabling cubeRows
+                        try:  # enabling cubeRows
                             # now enable corresponding cube
-                            for i in range(1, n+1):
+                            for i in range(1, fo.n+1):
                                 enableCubeRow(i, window)
-                            for i in range(n+1, 6):
+                            for i in range(fo.n+1, 6):
                                 disableCubeRow(i, window)
                         except Exception as e:
-                            print(f"Podczas odblokowywania kostki: {e}")
+                            logger.error(f"Podczas odblokowywania kostki: {e}")
 
             elif values['-CONFIRM_FUNCTION-'] == False:  # it was unchecked
                 # unblock function to edit
@@ -319,7 +318,31 @@ def runProgram():
 
         if event == '-CONFIRM_CUBE-':
             if values['-CONFIRM_CUBE-'] == True:
-                pass
+                try:
+                    fo.vXMin[0] = eval(values['iMin1'])
+                    fo.vXMin[1] = eval(values['iMin2'])
+                    fo.vXMin[2] = eval(values['iMin3'])
+                    fo.vXMin[3] = eval(values['iMin4'])
+                    fo.vXMin[4] = eval(values['iMin5'])
+
+                    fo.vXMax[0] = eval(values['iMax1'])
+                    fo.vXMax[1] = eval(values['iMax2'])
+                    fo.vXMax[2] = eval(values['iMax3'])
+                    fo.vXMax[3] = eval(values['iMax4'])
+                    fo.vXMax[4] = eval(values['iMax5'])
+                    
+                    fo.vXRes[0] = int(values['sRes1'])
+                    fo.vXRes[1] = int(values['sRes2'])
+                    fo.vXRes[2] = int(values['sRes3'])
+                    fo.vXRes[3] = int(values['sRes4'])
+                    fo.vXRes[4] = int(values['sRes5'])
+
+                except Exception as e:
+                    logger.error(f"Podczas zatwierdzania kostki: {e}.")
+                else:
+                    logger.info(f"Pomyślnie zatwierdzono kostkę.")
+
+
             elif values['-CONFIRM_CUBE-'] == False:
                 pass
 
@@ -337,111 +360,93 @@ def runProgram():
 
         # Generate function
         if event == "-GENERATE-":
-            folder = values["-FUNCTION-"]
 
-            try:    # parse function
-                f = eval(folder)
-                parsedString = str(f)
-            except Exception:
-                logger.info(
-                    "Błąd podczas rozparsowywania funkcji. Zmień wzór i kliknij 'Generuj'.")
-            else:
-                logger.info(
-                    f"Pomyślnie rozparsowano funkcję: f({char_xVector}) = {parsedString}")
-                try:    # get and count variables
-                    occuringVariables = f.atoms(Symbol)
-                    strOccuringVariables = str(occuringVariables)
-                    n = len(strOccuringVariables.split())
-                except Exception:
+            # Zmienne muszą być podawane po kolei!
+            # Jeśli n=3, to występują x1, x2 i x3!
+            try:    # draw function
+                if fo.n == 1:
                     logger.info(
-                        "Nie mogłem policzyć zmiennych w równaniu funkcji celu.")
+                        "===ROZPOZNANO RÓWNANIE Z 1 ZMIENNĄ===")
+                    logger.info("Tylko wykres 2D.")
+                    fig.add_subplot(111)
+                    # plt.gcf()  # clear figure
+                    plt.clf()   # clear figure
+                    plt.cla()   # clear axes
+                    draw_figure_w_toolbar(
+                        window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+                    # ax = fig.add_subplot(1, 1, 1, projection='2d')
+
+                    X, Y = fo.create2DAxes()
+
+                    plt.plot(X, Y)
+                    plt.title(f'f(x1)={fo.strFunction}')
+                    plt.xlabel('x1')
+                    plt.ylabel('f(x1)')
+                    plt.grid()
+                    draw_figure_w_toolbar(
+                        window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+                    logger.info("Udało się narysować wykres.")
+
+                elif fo.n == 2:
+                    logger.info(
+                        "===ROZPOZNANO RÓWNANIE Z 2 ZMIENNYMI===")
+                    logger.info("Wykres 3D + warstwice.")
+                    # rysunkek 3D
+                    # fig.add_subplot(111, projection='3d')
+                    ax = fig.add_subplot(1, 1, 1, projection='3d')
+                    plt.clf()
+                    plt.cla()
+                    X,Y,Z = fo.create3DAxes()
+                    surf = ax.plot_surface(
+                    X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+                    ax.set_zlim(-1.01, 1.01)
+                    fig.colorbar(surf, shrink=0.5, aspect=10)
+
+                    # ------------------------------- Instead of plt.show()
+                    draw_figure_w_toolbar(
+                        window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+
+
+                    # warstwice
+
                 else:
                     logger.info(
-                        f"Występujące zmienne: {strOccuringVariables}. N={n}.")
+                        "===ROZPOZNANO RÓWNANIE Z 3 LUB WIĘCEJ ZMIENNYMI===")
+                    logger.info("Brak wykresu.")
 
-                    # Zmienne muszą być podawane po kolei!
-                    # Jeśli n=3, to występują x1, x2 i x3!
-                    try:    # draw function
-                        if n == 1:
-                            logger.info(
-                                "===ROZPOZNANO RÓWNANIE Z 1 ZMIENNĄ===")
-                            logger.info("Tylko wykres 2D.")
-                            fig.add_subplot(111)
-                            # plt.gcf()  # clear figure
-                            plt.clf()   # clear figure
-                            plt.cla()   # clear axes
-                            draw_figure_w_toolbar(
-                                window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
-                            # ax = fig.add_subplot(1, 1, 1, projection='2d')
-                            x1min = eval(values['iMin1'])
-                            x1max = eval(values['iMax1'])
-                            x1res = int(values['sRes1'])
-                            X = np.linspace(x1min, x1max, num=x1res)
-                            Y = [f.subs(x1, x) for x in X]
-                            plt.plot(X, Y)
-                            plt.title(f'f(x1)={str(f)}')
-                            plt.xlabel('x1')
-                            plt.ylabel('f(x1)')
-                            plt.grid()
-                            draw_figure_w_toolbar(
-                                window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
-                            logger.info("Udało się narysować wykres.")
-
-                        elif n == 2:
-                            logger.info(
-                                "===ROZPOZNANO RÓWNANIE Z 2 ZMIENNYMI===")
-                            logger.info("Wykres 3D + warstwice.")
-
-
-                        else:
-                            logger.info(
-                                "===ROZPOZNANO RÓWNANIE Z 3 LUB WIĘCEJ ZMIENNYMI===")
-                            logger.info("Brak wykresu.")
-
-                    except Exception as e:
-                        logger.info(f"Błąd przy próbie narysowania funkcji: {e}.")
-
-
-
-
-
-
-
-        if event == "-addRest-":    # add a restriction
-            ### restriction to add
-            # restta = values["-REST-"]
-            # print(restta)
-            try:    # parse function
-                restta = eval(values["-REST-"])
-                occvar_no = -1
-                if type(restta) in [int, float]:
-                    occvar_no = 0
-                # else:
-                    # occvar_no = len(str(restta.atoms(Symbol)).split()) #occuring vars
-
-                if occvar_no == 0:
-                    err = "Musi występować przynajmniej x1."
-                    raise Exception(err)
-                restta_str = str(restta)
             except Exception as e:
-                logger.error(f"Podczas rozparsowania ograniczenia: {e}")
-                window['-CONFIRM_RESTRICTIONS-'].Update(value=False)
-            else:
-                # check if no more than 5
-                nor = len(values["lbRest"])
-                print(f"Current number of rests: {nor}")
-                if len(values["lbRest"]) <= 5:
-                    try:    # add a rest
-                        window['lbRest'].Update(values=values["lbRest"].append(restta_str))
-                        window.refresh()
-                    except Exception as e:
-                        logger.error(f"Podczas dodawania ograniczenia: {e}")
+                logger.info(f"Błąd przy próbie narysowania funkcji: {e}.")
 
+        # if event == "-addRest-":    # add a restriction
+        #     # restriction to add
+        #     # restta = values["-REST-"]
+        #     # print(restta)
+        #     try:    # parse function
+        #         restta = eval(values["-REST-"])
+        #         occvar_no = -1
+        #         if type(restta) in [int, float]:
+        #             occvar_no = 0
+        #         # else:
+        #             # occvar_no = len(str(restta.atoms(Symbol)).split()) #occuring vars
 
-
-
-
-
+        #         if occvar_no == 0:
+        #             err = "Musi występować przynajmniej x1."
+        #             raise Exception(err)
+        #         restta_str = str(restta)
+        #     except Exception as e:
+        #         logger.error(f"Podczas rozparsowania ograniczenia: {e}")
+        #         window['-CONFIRM_RESTRICTIONS-'].Update(value=False)
+        #     else:
+        #         # check if no more than 5
+        #         nor = len(values["lbRest"])
+        #         print(f"Current number of rests: {nor}")
+        #         if len(values["lbRest"]) <= 5:
+        #             try:    # add a rest
+        #                 window['lbRest'].Update(
+        #                     values=values["lbRest"].append(restta_str))
+        #                 window.refresh()
+        #             except Exception as e:
+        #                 logger.error(f"Podczas dodawania ograniczenia: {e}")
 
         if event == "-GENERATE_MOCK-":
             # ------------------------------- PASTE YOUR MATPLOTLIB CODE HERE
@@ -469,10 +474,23 @@ def runProgram():
             ax = fig.add_subplot(1, 1, 1, projection='3d')
 
             # plot a 3D surface like in the example mplot3d/surface3d_demo
-            X = np.arange(-5, 5, 0.25)
-            Y = np.arange(-5, 5, 0.25)
+            X = np.arange(-1, 1, 0.25)
+            Y = np.arange(-0, 2, 0.25)
             X, Y = np.meshgrid(X, Y)
-            Z = np.sin(np.sqrt(X**2 + Y**2))
+
+            x1, x2 = symbols('x1 x2')
+            f = 'x1+x2'
+            fev = eval(f)
+            Z = []
+            for y in Y:
+                row=[]
+                for x in X:
+                    res = fev.subs(x1,x).subs(x2,y)
+                    row.append(res)
+                Z.append(row)
+                    
+
+            # Z = np.sin(np.sqrt(X**2 + Y**2))
             surf = ax.plot_surface(
                 X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
             ax.set_zlim(-1.01, 1.01)
