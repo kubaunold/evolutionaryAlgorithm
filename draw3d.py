@@ -2,7 +2,7 @@ from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_implicit(fn, bbox=(-2.5,2.5)):
+def plot_implicit(fn, bbox=(-10,10)):
     ''' create a plot of an implicit function
     fn  ...implicit function (plot where fn==0)
     bbox ..the x,y,and z limits of plotted interval'''
@@ -37,10 +37,12 @@ def plot_implicit(fn, bbox=(-2.5,2.5)):
     ax.set_ylim3d(ymin,ymax)
 
     plt.show()
-    
+
 def goursat_tangle(x,y,z):
     a,b,c = 0.0,-5.0,11.8
     return x**4+y**4+z**4+a*(x**2+y**2+z**2)**2+b*(x**2+y**2+z**2)+c
+    # return x + y + z
+
 
 if __name__=='__main__':
     print("printing TRAINGLE")

@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 import logging
 
 from functionClass import Function, x1, x2, x3, x4, x5
+import draw3d as plot3d
 
 # GLOBAL VARIABLES
 keyOfLoggerWindow = '-LOG-'
@@ -470,35 +471,43 @@ def runProgram():
             # X, Y = np.meshgrid(X, Y)
             # Z = np.sin(np.sqrt(X**2 + Y**2))
             # plt.plot(X, Y, Z)
+            try:
+                # plot3d.plot_implicit(plot3d.goursat_tangle)
+                a,b,c = 0.0,-5.0,11.8
+                # plot3d.plot_implicit(lambda x, y, z: (x**4+y**4+z**4+a*(x**2+y**2+z**2)**2+b*(x**2+y**2+z**2)+c))
+                plot3d.plot_implicit(lambda X,Y,Z: (np.sin(np.sqrt(X**2 + Y**2))))
 
-            ax = fig.add_subplot(1, 1, 1, projection='3d')
+            except Exception as e:
+                logger.error(f"Nie mogłem narysować mock data: {e}.")
 
-            # plot a 3D surface like in the example mplot3d/surface3d_demo
-            X = np.arange(-1, 1, 0.25)
-            Y = np.arange(-0, 2, 0.25)
-            X, Y = np.meshgrid(X, Y)
+            # ax = fig.add_subplot(1, 1, 1, projection='3d')
 
-            x1, x2 = symbols('x1 x2')
-            f = 'x1+x2'
-            fev = eval(f)
-            Z = []
-            for y in Y:
-                row=[]
-                for x in X:
-                    res = fev.subs(x1,x).subs(x2,y)
-                    row.append(res)
-                Z.append(row)
+            # # plot a 3D surface like in the example mplot3d/surface3d_demo
+            # X = np.arange(-1, 1, 0.25)
+            # Y = np.arange(-0, 2, 0.25)
+            # X, Y = np.meshgrid(X, Y)
+
+            # x1, x2 = symbols('x1 x2')
+            # f = 'x1+x2'
+            # fev = eval(f)
+            # Z = []
+            # for y in Y:
+            #     row=[]
+            #     for x in X:
+            #         res = fev.subs(x1,x).subs(x2,y)
+            #         row.append(res)
+            #     Z.append(row)
                     
 
-            # Z = np.sin(np.sqrt(X**2 + Y**2))
-            surf = ax.plot_surface(
-                X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
-            ax.set_zlim(-1.01, 1.01)
-            fig.colorbar(surf, shrink=0.5, aspect=10)
+            # # Z = np.sin(np.sqrt(X**2 + Y**2))
+            # surf = ax.plot_surface(
+            #     X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+            # ax.set_zlim(-1.01, 1.01)
+            # fig.colorbar(surf, shrink=0.5, aspect=10)
 
-            # ------------------------------- Instead of plt.show()
-            draw_figure_w_toolbar(
-                window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+            # # ------------------------------- Instead of plt.show()
+            # draw_figure_w_toolbar(
+            #     window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
 
     window.close()
 
