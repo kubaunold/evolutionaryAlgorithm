@@ -1,4 +1,4 @@
-from sympy import symbols   # for symbolic math
+from sympy import symbols, lambdify   # for symbolic math
 from sympy import Number, NumberSymbol, Symbol
 import numpy as np
 
@@ -66,13 +66,23 @@ class Function():
         #         Z = self.function.
         #     abc = x
         #     print("okay")
-
-
-
-
-
         return X, Y, Z
+
+    def makeZ(self):
+        x = np.linspace(-6, 6, 30)
+        y = np.linspace(-6, 6, 30)
+
+        X, Y = np.meshgrid(x, y)
+        Z = self.function.subs([(x, X), (y, Y)])
+        return Z
     
+    def makeF(self):
+        try:
+            f = lambdify([x1, x2], self.strFunction)
+        except Exception as e:
+            print(f"Nie mogłem stworzyć funkcji z podanego wzoru. {e}")
+
+        return f
 
     # def __init__(self):
     #     """Initialize function object."""

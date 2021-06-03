@@ -394,16 +394,40 @@ def runProgram():
                     logger.info("Wykres 3D + warstwice.")
                     # rysunkek 3D
                     # fig.add_subplot(111, projection='3d')
-                    ax = fig.add_subplot(1, 1, 1, projection='3d')
-                    plt.clf()
-                    plt.cla()
-                    X,Y,Z = fo.create3DAxes()
-                    surf = ax.plot_surface(
-                    X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
-                    ax.set_zlim(-1.01, 1.01)
-                    fig.colorbar(surf, shrink=0.5, aspect=10)
+                    # ax = fig.add_subplot(1, 1, 1, projection='3d')
+                    # plt.clf()
+                    # plt.cla()
+                    # X,Y,Z = fo.create3DAxes()
+                    # surf = ax.plot_surface(
+                    # X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+                    # ax.set_zlim(-1.01, 1.01)
+                    # fig.colorbar(surf, shrink=0.5, aspect=10)
 
-                    # ------------------------------- Instead of plt.show()
+                    # # ------------------------------- Instead of plt.show()
+                    # draw_figure_w_toolbar(
+                    #     window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+
+                    def f(x, y):
+                        return np.sin(np.sqrt(x ** 2 + y ** 2))
+
+                    x = np.linspace(-6, 6, 30)
+                    y = np.linspace(-6, 6, 30)
+
+                    X, Y = np.meshgrid(x, y)
+                    # Z = f(X, Y)
+                    f = fo.makeF()
+                    Z = f(X, Y)
+
+                    fig = plt.figure()
+                    ax = plt.axes(projection='3d')
+                    ax.contour3D(X, Y, Z, 50, cmap='binary')
+                    ax.set_xlabel('x1')
+                    ax.set_ylabel('x2')
+                    ax.set_zlabel('f(x1,x2)')
+                    ax.view_init(60, 35)
+                    ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
+                                    cmap='viridis', edgecolor='none')
+                    ax.set_title('surface');
                     draw_figure_w_toolbar(
                         window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
 
@@ -473,9 +497,41 @@ def runProgram():
             # plt.plot(X, Y, Z)
             try:
                 # plot3d.plot_implicit(plot3d.goursat_tangle)
-                a,b,c = 0.0,-5.0,11.8
                 # plot3d.plot_implicit(lambda x, y, z: (x**4+y**4+z**4+a*(x**2+y**2+z**2)**2+b*(x**2+y**2+z**2)+c))
-                plot3d.plot_implicit(lambda X,Y,Z: (np.sin(np.sqrt(X**2 + Y**2))))
+                
+                # a,b,c = 0.0,-5.0,11.8
+                # plot3d.plot_implicit(lambda X,Y,Z: (np.sin(np.sqrt(X**2 + Y**2))))
+
+                def f(x, y):
+                    return np.sin(np.sqrt(x ** 2 + y ** 2))
+
+                x = np.linspace(-6, 6, 30)
+                y = np.linspace(-6, 6, 30)
+
+                X, Y = np.meshgrid(x, y)
+                Z = f(X, Y)
+
+                fig = plt.figure()
+                ax = plt.axes(projection='3d')
+                ax.contour3D(X, Y, Z, 50, cmap='binary')
+                ax.set_xlabel('x')
+                ax.set_ylabel('y')
+                ax.set_zlabel('z')
+                ax.view_init(60, 35)
+                ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
+                                cmap='viridis', edgecolor='none')
+                ax.set_title('surface');
+                draw_figure_w_toolbar(
+                    window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+
+
+
+
+
+
+
+
+
 
             except Exception as e:
                 logger.error(f"Nie mogłem narysować mock data: {e}.")
