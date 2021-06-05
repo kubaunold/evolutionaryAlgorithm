@@ -1,6 +1,8 @@
 from sympy import symbols, lambdify   # for symbolic math
 from sympy import Number, NumberSymbol, Symbol
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 def variablesInit():
     # n <= 5
@@ -8,14 +10,15 @@ def variablesInit():
 
     return x1, x2, x3, x4, x5
 
-x1,x2,x3,x4,x5 = variablesInit()
+
+x1, x2, x3, x4, x5 = variablesInit()
 
 
 class Function():
     """Represent a function class."""
 
     # x1, x2, x3, x4, x5 = variablesInit()  # variables
-    function = None # function formula
+    function = None  # function formula
     strFunction = None
     temp = 5
     vXMin = [0.0, 0.0, 0.0, 0.0, 0.0]      # vector of 'x' minimums (cube)
@@ -59,7 +62,7 @@ class Function():
         temp = np.meshgrid(X, Y)
         X, Y = np.meshgrid(X, Y)
 
-        Z = [[self.function.subs(x1,x).subs(x2,y) for x in X] for y in Y]
+        Z = [[self.function.subs(x1, x).subs(x2, y) for x in X] for y in Y]
 
         # for x in X:
         #     for y in Y:
@@ -75,7 +78,7 @@ class Function():
         X, Y = np.meshgrid(x, y)
         Z = self.function.subs([(x, X), (y, Y)])
         return Z
-    
+
     def makeF(self):
         try:
             f = lambdify([x1, x2], self.strFunction)
@@ -83,6 +86,45 @@ class Function():
             print(f"Nie mogłem stworzyć funkcji z podanego wzoru. {e}")
 
         return f
+
+    def make3dgraph(self):
+        # plt.clf()
+        # plt.cla()
+        x = np.linspace(-6, 6, 30)
+        y = np.linspace(-6, 6, 30)
+
+        X, Y = np.meshgrid(x, y)
+        # Z = f(X, Y)
+        f = self.makeF()
+        Z = f(X, Y)
+
+        fig = plt.figure()
+        # ax = plt.axes(projection='3d')
+        ax = fig.add_subplot(111, projection='3d')
+        ax.contour3D(X, Y, Z, 50, cmap='binary')
+        ax.set_xlabel('x1')
+        ax.set_ylabel('x2')
+        ax.set_zlabel('f(x1,x2)')
+        ax.view_init(60, 35)
+        ax.plot_surface(X, Y, Z, rstride=1, cstride=1,cmap='viridis', edgecolor='none'), ax.set_title('Wykres 3D')
+
+        return fig
+
+    def make_2d_countour_lines(self):
+        delta = 0.025
+        x = np.arange(-3.0, 3.0, delta)
+        y = np.arange(-2.0, 2.0, delta)
+        X, Y = np.meshgrid(x, y)
+        Z1 = np.exp(-X**2 - Y**2)
+        Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+        Z = (Z1 - Z2) * 2
+        fig, ax = plt.subplots()
+        CS = ax.contour(X, Y, Z)
+        ax.clabel(CS, inline=True, fontsize=10)
+        ax.set_title('Simplest default with labels')
+
+        return fig    
+
 
     # def __init__(self):
     #     """Initialize function object."""

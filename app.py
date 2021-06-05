@@ -20,6 +20,14 @@ import logging
 from functionClass import Function, x1, x2, x3, x4, x5
 import draw3d as plot3d
 
+from signal import signal, SIGINT
+from sys import exit
+
+def handler(signal_received, frame):
+    # Handle any cleanup here
+    print('SIGINT or CTRL-C detected. Exiting gracefully')
+    exit(0)
+
 # GLOBAL VARIABLES
 keyOfLoggerWindow = '-LOG-'
 loggerFileName = "log.txt"
@@ -27,8 +35,6 @@ loggerFileName = "log.txt"
 CHAR_LOE = '\u2264'  # Less or equal sign (<=)
 CHAR_XVEC = '\u0078'
 CHAR_XVEC = '\u2179'
-
-
 
 
 # Some helper functions
@@ -167,17 +173,31 @@ def windowInit():
 
     # second column of layout
     graph_viewer_column = [
-        [sg.T('Controls:')],
-        [sg.Canvas(key='-FIGURE_CONTROLS-')],
-        [sg.T('Figure:')],
+        [sg.T('Controls1:')],
+        [sg.Canvas(key='-FIGURE_CONTROLS1-')],
+        [sg.T('Figure1:')],
         [sg.Column(
             layout=[
-                [sg.Canvas(key='-FIGURE-',
+                [sg.Canvas(key='-FIGURE1-',
                            # it's important that you set this size
-                           size=(400 * 2, 400)
+                           size=(600, 300)
                            )]
             ],
             background_color='#DAE0E6',
+            pad=(0, 0)
+        )],
+
+        [sg.T('Controls2:')],
+        [sg.Canvas(key='-FIGURE_CONTROLS2-')],
+        [sg.T('Figure2:')],
+        [sg.Column(
+            layout=[
+                [sg.Canvas(key='-FIGURE2-',
+                           # it's important that you set this size
+                           size=(600, 300)
+                           )]
+            ],
+            background_color='#FFFFFF',
             pad=(0, 0)
         )],
     ]
@@ -196,7 +216,13 @@ def windowInit():
         # default_element_size=(30, 2),
         # font=('Helvetica', ' 10'),
         # default_button_element_size=(8, 2),
-        finalize=True)
+        finalize=True,
+        # no_titlebar=True,
+        location=(0, 0),
+        size=(1024, 1080),
+        resizable=True,
+        # keep_on_top=True,
+    )
 
     # Hide some elements @ start
     # disable confirming Cube, Restrictions & Generate
@@ -243,11 +269,15 @@ class Toolbar(NavigationToolbar2Tk):
 
 
 def runProgram():
+    signal(SIGINT, handler)
+
     # function object initialization
     fo = Function()
 
     # Window initialization
     window = windowInit()
+    # start window maximized
+    window.Maximize()
 
     # Logger initialization
     logger = loggerInit(window, keyOfLoggerWindow)
@@ -331,7 +361,7 @@ def runProgram():
                     fo.vXMax[2] = eval(values['iMax3'])
                     fo.vXMax[3] = eval(values['iMax4'])
                     fo.vXMax[4] = eval(values['iMax5'])
-                    
+
                     fo.vXRes[0] = int(values['sRes1'])
                     fo.vXRes[1] = int(values['sRes2'])
                     fo.vXRes[2] = int(values['sRes3'])
@@ -342,7 +372,6 @@ def runProgram():
                     logger.error(f"Podczas zatwierdzania kostki: {e}.")
                 else:
                     logger.info(f"Pomyślnie zatwierdzono kostkę.")
-
 
             elif values['-CONFIRM_CUBE-'] == False:
                 pass
@@ -374,7 +403,7 @@ def runProgram():
                     plt.clf()   # clear figure
                     plt.cla()   # clear axes
                     draw_figure_w_toolbar(
-                        window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+                        window['-FIGURE1-'].TKCanvas, fig, window['-FIGURE_CONTROLS1-'].TKCanvas)
                     # ax = fig.add_subplot(1, 1, 1, projection='2d')
 
                     X, Y = fo.create2DAxes()
@@ -385,54 +414,32 @@ def runProgram():
                     plt.ylabel('f(x1)')
                     plt.grid()
                     draw_figure_w_toolbar(
-                        window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+                        window['-FIGURE1-'].TKCanvas, fig, window['-FIGURE_CONTROLS1-'].TKCanvas)
                     logger.info("Udało się narysować wykres.")
 
                 elif fo.n == 2:
                     logger.info(
                         "===ROZPOZNANO RÓWNANIE Z 2 ZMIENNYMI===")
-                    logger.info("Wykres 3D + warstwice.")
-                    # rysunkek 3D
-                    # fig.add_subplot(111, projection='3d')
-                    # ax = fig.add_subplot(1, 1, 1, projection='3d')
-                    # plt.clf()
-                    # plt.cla()
-                    # X,Y,Z = fo.create3DAxes()
-                    # surf = ax.plot_surface(
-                    # X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
-                    # ax.set_zlim(-1.01, 1.01)
-                    # fig.colorbar(surf, shrink=0.5, aspect=10)
 
-                    # # ------------------------------- Instead of plt.show()
-                    # draw_figure_w_toolbar(
-                    #     window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
+                    try:  # wykres 3D
+                        logger.info("Rysowanie wykresu 3D.")
+                        fig = fo.make3dgraph()
+                        draw_figure_w_toolbar(
+                            window['-FIGURE1-'].TKCanvas, fig, window['-FIGURE_CONTROLS1-'].TKCanvas)
+                    except Exception as e:
+                        logger.error(f"Podczas rysowania wykresu 3D: {e}.")
+                    else:
+                        logger.info("Pomyślnie narysowano wykres 3D.")
 
-                    def f(x, y):
-                        return np.sin(np.sqrt(x ** 2 + y ** 2))
-
-                    x = np.linspace(-6, 6, 30)
-                    y = np.linspace(-6, 6, 30)
-
-                    X, Y = np.meshgrid(x, y)
-                    # Z = f(X, Y)
-                    f = fo.makeF()
-                    Z = f(X, Y)
-
-                    fig = plt.figure()
-                    ax = plt.axes(projection='3d')
-                    ax.contour3D(X, Y, Z, 50, cmap='binary')
-                    ax.set_xlabel('x1')
-                    ax.set_ylabel('x2')
-                    ax.set_zlabel('f(x1,x2)')
-                    ax.view_init(60, 35)
-                    ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
-                                    cmap='viridis', edgecolor='none')
-                    ax.set_title('surface');
-                    draw_figure_w_toolbar(
-                        window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
-
-
-                    # warstwice
+                    try:  # wykres 2D - warstwice
+                        logger.info("Rysowanie wykresu 2D - warstwice.")
+                        fig = fo.make_2d_countour_lines()
+                        draw_figure_w_toolbar(
+                            window['-FIGURE2-'].TKCanvas, fig, window['-FIGURE_CONTROLS2-'].TKCanvas)
+                    except Exception as e:
+                        logger.error(f"Podczas rysowania wykresu 2D: {e}.")
+                    else:
+                        logger.info("Pomyślnie narysowano wykres 2D.")
 
                 else:
                     logger.info(
@@ -498,7 +505,7 @@ def runProgram():
             try:
                 # plot3d.plot_implicit(plot3d.goursat_tangle)
                 # plot3d.plot_implicit(lambda x, y, z: (x**4+y**4+z**4+a*(x**2+y**2+z**2)**2+b*(x**2+y**2+z**2)+c))
-                
+
                 # a,b,c = 0.0,-5.0,11.8
                 # plot3d.plot_implicit(lambda X,Y,Z: (np.sin(np.sqrt(X**2 + Y**2))))
 
@@ -520,18 +527,9 @@ def runProgram():
                 ax.view_init(60, 35)
                 ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
                                 cmap='viridis', edgecolor='none')
-                ax.set_title('surface');
+                ax.set_title('surface')
                 draw_figure_w_toolbar(
-                    window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
-
-
-
-
-
-
-
-
-
+                    window['-FIGURE1-'].TKCanvas, fig, window['-FIGURE_CONTROLS1-'].TKCanvas)
 
             except Exception as e:
                 logger.error(f"Nie mogłem narysować mock data: {e}.")
@@ -553,7 +551,6 @@ def runProgram():
             #         res = fev.subs(x1,x).subs(x2,y)
             #         row.append(res)
             #     Z.append(row)
-                    
 
             # # Z = np.sin(np.sqrt(X**2 + Y**2))
             # surf = ax.plot_surface(
