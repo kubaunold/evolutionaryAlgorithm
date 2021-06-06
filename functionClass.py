@@ -1,3 +1,4 @@
+from sympy import *
 from sympy import symbols, lambdify   # for symbolic math
 from sympy import Number, NumberSymbol, Symbol
 import numpy as np
@@ -48,7 +49,10 @@ class Function():
         x1res = self.vXRes[0]
 
         X = np.linspace(x1min, x1max, num=x1res)
-        Y = [self.function.subs(x1, x) for x in X]
+        # Y = [self.function.subs(x1, x) for x in X]
+        f = self.makeF2D()
+        Y = f(X)
+
         return X, Y
 
     def create3DAxes(self):
@@ -81,12 +85,18 @@ class Function():
         X, Y = np.meshgrid(x, y)
         Z = self.function.subs([(x, X), (y, Y)])
         return Z
-
+    def makeF2D(self):
+        try:
+            f = lambdify(x1, self.funToString())
+        except Exception as e:
+            print(f"Nie mogłem stworzyć funkcji 2D z podanego wzoru. {e}")
+        else:
+            return f
     def makeF(self):
         try:
             f = lambdify([x1, x2], self.funToString())
         except Exception as e:
-            print(f"Nie mogłem stworzyć funkcji z podanego wzoru. {e}")
+            print(f"Nie mogłem stworzyć funkcji 3D z podanego wzoru. {e}")
         else:
             return f
 

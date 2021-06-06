@@ -2,10 +2,11 @@
 from tkinter import Frame, font
 from tkinter.constants import DISABLED
 from PySimpleGUI.PySimpleGUI import T, theme_text_element_background_color
-from sympy import symbols   # for symbolic math
-from sympy import Number, NumberSymbol, Symbol
+from sympy import *
+# from sympy import symbols   # for symbolic math
+# from sympy import Number, NumberSymbol, Symbol
 import numpy as np
-import math
+# import math
 
 import PySimpleGUI as sg
 # import PySimpleGUIQt as sg
