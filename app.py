@@ -23,6 +23,8 @@ import draw3d as plot3d
 from signal import signal, SIGINT
 from sys import exit
 
+import testFunctions as tf
+
 def handler(signal_received, frame):
     # Handle any cleanup here
     print('SIGINT or CTRL-C detected. Exiting gracefully')
@@ -32,9 +34,9 @@ def handler(signal_received, frame):
 keyOfLoggerWindow = '-LOG-'
 loggerFileName = "log.txt"
 
-CHAR_LOE = '\u2264'  # Less or equal sign (<=)
-CHAR_XVEC = '\u0078'
-CHAR_XVEC = '\u2179'
+CHAR_LOE = '\u2264'     # Less or equal sign (<=)
+CHAR_XVEC = '\u0078'    # x vector sign
+CHAR_XVEC = '\u2179'    # x vector sign
 
 
 # Some helper functions
@@ -90,7 +92,8 @@ def windowInit():
                         sg.Text(f"f({CHAR_XVEC})="),
                         sg.In(size=(30, 1), key="-FUNCTION-"),
                         sg.Checkbox('Zatwierdź funkcję', size=(
-                            15, 1), key='-CONFIRM_FUNCTION-', default=False, enable_events=True)
+                            15, 1), key='-CONFIRM_FUNCTION-', default=False, enable_events=True),
+                        sg.B("Test function", key="-TEST_FUNCTION-"),
                     ],
                 ],
                 title='Funkcja',
@@ -168,11 +171,12 @@ def windowInit():
         # [sg.Button("Generuj", key="-GENERATE-", button_color=('white', 'green'))],
         [sg.Button("Rysuj funkcję", key="-GENERATE-")],
         [sg.Button("GenerujMockData", key="-GENERATE_MOCK-")],
-        [sg.Output(size=(100, 10), key=keyOfLoggerWindow)],
+        [sg.Output(size=(120, 1), key=keyOfLoggerWindow)],
     ]
 
     # second column of layout
     graph_viewer_column = [
+        [sg.T(f"f({CHAR_XVEC})="),sg.I("<Wykres funkcji zostanie umieszczony tutaj>",disabled=True,size=(80, 1),key="function_title")],
         [sg.T('Controls1:')],
         [sg.Canvas(key='-FIGURE_CONTROLS1-')],
         [sg.T('Figure1:')],
@@ -291,6 +295,14 @@ def runProgram():
 
         if event in (sg.WIN_CLOSED, 'Exit'):
             break
+        
+        if event == '-TEST_FUNCTION-':
+            try: window["-FUNCTION-"].update(value=tf.TestFunctions.geem_function())
+            except Exception as e:
+                logger.error(f"Nie mogłem wczytać funkcji testowej.")
+            else:
+                logger.info("Pomyślnie wczytano funkcję testową") 
+
 
         # onConfirmFunction enable confirming cube & restrictions
         if event == '-CONFIRM_FUNCTION-':
@@ -313,6 +325,8 @@ def runProgram():
                         '-CONFIRM_CUBE-', '-CONFIRM_RESTRICTIONS-']
                     for w in enableWidgetsOnFuntionConfirm:
                         window.FindElement(w).Update(disabled=False)
+
+                    window["function_title"].update(value=fo.funToString())
 
                     logger.info(
                         f"Pomyślnie rozparsowano funkcję: f({CHAR_XVEC}) = {fo.strFunction}")

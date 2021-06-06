@@ -34,6 +34,9 @@ class Function():
     #     global x1, x2, x3, x4, x5
     #     x1, x2, x3, x4, x5 = variablesInit()
 
+    def funToString(self) -> str:
+        return str(self.function)
+
     def parseFunction(self, functionString):
         """Parses a function and fills 'function' and 'strFunction'"""
         self.strFunction = functionString
@@ -81,47 +84,68 @@ class Function():
 
     def makeF(self):
         try:
-            f = lambdify([x1, x2], self.strFunction)
+            f = lambdify([x1, x2], self.funToString())
         except Exception as e:
             print(f"Nie mogłem stworzyć funkcji z podanego wzoru. {e}")
-
-        return f
+        else:
+            return f
 
     def make3dgraph(self):
         # plt.clf()
         # plt.cla()
-        x = np.linspace(-6, 6, 30)
-        y = np.linspace(-6, 6, 30)
+        x1min = self.vXMin[0]
+        x1max = self.vXMax[0]
+        x1res = self.vXRes[0]
+        X = np.linspace(x1min, x1max, num=x1res)
 
-        X, Y = np.meshgrid(x, y)
-        # Z = f(X, Y)
+        x2min = self.vXMin[1]
+        x2max = self.vXMax[1]
+        x2res = self.vXRes[1]
+        Y = np.linspace(x2min, x2max, num=x2res)
+
+        X, Y = np.meshgrid(X, Y)
         f = self.makeF()
         Z = f(X, Y)
 
         fig = plt.figure()
-        # ax = plt.axes(projection='3d')
         ax = fig.add_subplot(111, projection='3d')
         ax.contour3D(X, Y, Z, 50, cmap='binary')
         ax.set_xlabel('x1')
         ax.set_ylabel('x2')
         ax.set_zlabel('f(x1,x2)')
-        ax.view_init(60, 35)
-        ax.plot_surface(X, Y, Z, rstride=1, cstride=1,cmap='viridis', edgecolor='none'), ax.set_title('Wykres 3D')
+        # ax.view_init(60, 35)
+        ax.plot_surface(X, Y, Z, rstride=1, cstride=1,cmap='viridis', edgecolor='none')
+        # ax.set_title('Wykres 3D')
 
         return fig
 
     def make_2d_countour_lines(self):
-        delta = 0.025
-        x = np.arange(-3.0, 3.0, delta)
-        y = np.arange(-2.0, 2.0, delta)
-        X, Y = np.meshgrid(x, y)
-        Z1 = np.exp(-X**2 - Y**2)
-        Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
-        Z = (Z1 - Z2) * 2
+        x1min = self.vXMin[0]
+        x1max = self.vXMax[0]
+        x1res = self.vXRes[0]
+        X = np.linspace(x1min, x1max, num=x1res)
+
+        x2min = self.vXMin[1]
+        x2max = self.vXMax[1]
+        x2res = self.vXRes[1]
+        Y = np.linspace(x2min, x2max, num=x2res)
+
+
+
+
+        X, Y = np.meshgrid(X, Y)
+        # Z1 = np.exp(-X**2 - Y**2)
+        # Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+        # Z = (Z1 - Z2) * 2
+
+        f = self.makeF()
+        Z = f(X, Y)
+
+
         fig, ax = plt.subplots()
         CS = ax.contour(X, Y, Z)
         ax.clabel(CS, inline=True, fontsize=10)
-        ax.set_title('Simplest default with labels')
+        # ax.set_title(f'Warstwice funkcji {self.funToString()}')
 
         return fig    
 
