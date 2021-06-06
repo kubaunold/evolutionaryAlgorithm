@@ -171,7 +171,7 @@ def windowInit():
         # [sg.Button("Generuj", key="-GENERATE-", button_color=('white', 'green'))],
         [sg.Button("Rysuj funkcję", key="-GENERATE-")],
         [sg.Button("GenerujMockData", key="-GENERATE_MOCK-")],
-        [sg.Output(size=(120, 1), key=keyOfLoggerWindow)],
+        [sg.Output(size=(120, 15), key=keyOfLoggerWindow)],
     ]
 
     # second column of layout
@@ -223,7 +223,8 @@ def windowInit():
         finalize=True,
         # no_titlebar=True,
         location=(0, 0),
-        size=(1024, 1080),
+        # size=(1024, 1080),
+        size=(1920, 1080),
         resizable=True,
         # keep_on_top=True,
     )
@@ -297,7 +298,7 @@ def runProgram():
             break
         
         if event == '-TEST_FUNCTION-':
-            try: window["-FUNCTION-"].update(value=tf.TestFunctions.geem_function())
+            try: window["-FUNCTION-"].update(value=tf.TestFunctions.ackley_function())
             except Exception as e:
                 logger.error(f"Nie mogłem wczytać funkcji testowej.")
             else:
