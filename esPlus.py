@@ -1,7 +1,7 @@
 import random
 
 # evolution strategy (mu + lambda) of the ackley objective function
-from numpy import asarray, exp, sqrt, cos, e, pi, argsort
+from numpy import asarray, exp, sqrt, cos, e, pi, argsort, append, array
 from numpy.random import randn, rand, seed, normal
 
 # objective function
@@ -20,17 +20,21 @@ def in_bounds(point, bounds):
 	return True
 
 # mutate point
-def mutate(point, sigmaNormal):
+def mutate(point, sigmaNormal, bounds):
 	mutant = list()
 	mutant = point.copy()
 	
 	# parameters for normal noise
 	muNormal, sigmaNormal = 0, sigmaNormal # mean and standard deviation
-
-	# enumerate all dimensions of the point
+	
+	# enumerate all dimensions of the point and mutate them
 	for d in range(len(point)):
+		mutant[d] = point[d].copy() + normal(muNormal, sigmaNormal, 1)[0]
 
-		mutant[d] = point[d] + normal(muNormal, sigmaNormal, 1)[0]   
+	while mutant is None or not in_bounds(mutant, bounds):
+		# enumerate all dimensions of the point and mutate them
+		for d in range(len(point)):
+			mutant[d] = point[d].copy() + normal(muNormal, sigmaNormal, 1)[0]
 
 	return mutant
 
@@ -38,9 +42,12 @@ def mutate(point, sigmaNormal):
 
 # evolution strategy (mu + lambda) algorithm
 def es_plus(objective, bounds, n_iter, step_size, mu, lam):
-	best, best_eval = None, 1e+10
+	boe_point = None			# best of epoch point
+	boe_value = float('inf')	# f(boe_point)
+	
+
 	# calculate the number of children per parent
-	n_children = int(lam / mu)
+	# n_children = int(lam / mu)
 
 	### INITIAL POPULATION - of mu-parents size
 	init_pop = list()
@@ -54,104 +61,85 @@ def es_plus(objective, bounds, n_iter, step_size, mu, lam):
 	parents = list()
 	parents = init_pop
 
-	n_iter = 1
+	# n_iter = 1
 
 	### PERFORMING EVOLUTION
 	for epoch in range(n_iter):
 		print(f"Epoka {epoch}:")
 		### GENERATE POPULATION
 		offspring = list()
-		# temporary population of cloned parents (as many as lam-children)
+		# temporary population of cloned parents (as many as lam=children)
 		offspring = [random.choice(parents) for _ in range(lam)]
 		
-		#####################################################################
-		print(f"INITIAL OFFSPRING:")
-		for o in range(len(offspring)): print(f"osobnik {o}: {offspring[o]}")
-		#####################################################################
+		# #####################################################################
+		# print(f"INITIAL OFFSPRING:")
+		# for o in range(len(offspring)): print(f"osobnik {o}: {offspring[o]}")
+		# #####################################################################
 
-		### CROSSING
+		### CROSSING (checked for bounds)
 		percentageOfCrossing = 0.20
 		indexesForCrossing = range(int(percentageOfCrossing*lam))		#0..4
 		# uncrossedIndexes = range(int(percentageOfCrossing*lam), lam)#5..20
 		# first 20% will be crossed
 		for i in indexesForCrossing:
-			# specimen will be crossed
-			specimen = offspring[i]
+			# specimen that will be crossed
+			specimen = None
+			while specimen is None or not in_bounds(specimen, bounds):
+				specimen = offspring[i].copy()
 
-			# 2nd parent selected for crossing
-			specimens_spouse = None 
-			while (specimens_spouse is None) or (specimens_spouse is specimen):
-				specimens_spouse = random.choice(parents)
+				# 2nd parent selected for crossing
+				specimens_spouse = None 
+				while (specimens_spouse is None) or (specimens_spouse is specimen):
+					specimens_spouse = random.choice(parents).copy()
 
-			# crossing of specimen
-			for gene_idx in range(len(specimen)):	# gene here is x1, x2, ...
-				if(random.choice([True, False])):	# if True, then take gene from spouse
-					specimen[gene_idx] = specimens_spouse[gene_idx]
+				# crossing of specimen
+				for gene_idx in range(len(specimen)):	# gene here is x1, x2, ...
+					if(random.choice([True, False])):	# if True, then take gene from spouse
+						specimen[gene_idx] = specimens_spouse[gene_idx].copy()
 
-			offspring[i] = specimen
+			offspring[i] = specimen.copy()
 
-		#####################################################################
-		print(f"AFTER CROSSING of {percentageOfCrossing*100}%:")
-		for o in range(len(offspring)): print(f"osobnik {o}: {offspring[o]}")
-		#####################################################################
+		# #####################################################################
+		# print(f"AFTER CROSSING of {percentageOfCrossing*100}%:")
+		# for o in range(len(offspring)): print(f"osobnik {o}: {offspring[o]}")
+		# #####################################################################
 
-		### MUTATION
-		# now mutate whole offspring
-		offspring = [mutate(unit, step_size) for unit in offspring]
+		### MUTATION (checked for bounds)
+		# now mutate whole offspring and check if in bounds
+		offspring = [mutate(unit, step_size, bounds) for unit in offspring]
 
-		#####################################################################
-		print("AFTER MUTATION offspring:")
-		for o in range(len(offspring)): print(f"osobnik {o}: {offspring[o]}")
-		#####################################################################
+		# #####################################################################
+		# print("AFTER MUTATION offspring:")
+		# for o in range(len(offspring)): print(f"osobnik {o}: {offspring[o]}")
+		# #####################################################################
 
-		#
+		# now make it MIU + LAMBDA - add parents to offspring
+		for p in parents:
+			offspring.append(p)
 
+		### FITNESS EVALUATION
+		# evaluate fitness for the population
+		scores = [objective(c) for c in offspring]
+		# rank scores in ascending order
+		ranks = argsort(argsort(scores))
 
-
-	# # rank first parents
-	# #TODO
-
-	# ## REPRODUCTION - process of creating children
-	# # from first mu parents creat lambda children
-	# first_offspring = list()
-	# for _ in range(lam):	# create first children
-	# 	candidate = None
-	# 	while candidate is None or not in_bounds(candidate, bounds):
-	# 		candidate = random.choice(first_parents)
-	# 		# MUTATION
-	# 		candidate += 
+		# selected indexes - mu indices
+		selected = [count for count,_ in enumerate(scores) if ranks[count]<mu]
 		
-
-
-
-	
-	# # perform the search
-	# for epoch in range(n_iter):
-	# 	# evaluate fitness for the population
-	# 	scores = [objective(c) for c in population]
-	# 	# rank scores in ascending order
-	# 	ranks = argsort(argsort(scores))
-	# 	# select the indexes for the top mu ranked solutions
-	# 	selected = [i for i,_ in enumerate(ranks) if ranks[i] < mu]
-	# 	# create children from parents
-	# 	children = list()
-	# 	for i in selected:
-	# 		# check if this parent is the best solution ever seen
-	# 		if scores[i] < best_eval:
-	# 			best, best_eval = population[i], scores[i]
-	# 			print('Epoka %d, Najlepszy osobnik: f(%s) = %.5f' % (epoch, best, best_eval))
+		# teraz mam 5 rodziców do rozrodu
+		# oni będą moją nową populacją
+		
+		parents = list()	# empty the parents list
+		for i in selected:
+			parents.append(offspring[i])	# add there best of offspring
+			if scores[i] < boe_value:
+				boe_value = scores[i].copy()	# copy dla bezpieczenstwa
+				boe_point = offspring[i].copy()
+		
+		# print best of epoch
+		print('Najlepszy osobnik z epoki %d i wcześniejszych: f(%s) = %.7f' % (epoch+1, boe_point, boe_value))
 			
-	# 		# keep the parent
-	# 		children.append(population[i])
-	# 		# create children for parent
-	# 		for _ in range(n_children):
-	# 			child = None
-	# 			while child is None or not in_bounds(child, bounds):
-	# 				child = population[i] + randn(len(bounds)) * step_size
-	# 			children.append(child)
-	# 	# replace population with children
-	# 	population = children
-	return [best, best_eval]
+	return [boe_point, boe_value]
 
 
 if __name__=='__main__':
@@ -162,13 +150,13 @@ if __name__=='__main__':
 	# define range for input
 	bounds = asarray([[-5.0, 5.0], [-5.0, 5.0]])
 	# define the total iterations
-	n_iter = 10
+	n_iter = 5000
 	# define the maximum step size
 	step_size = 0.15
 	# number of parents selected each iteration
-	mu = 5
+	mu = 50
 	# the number of children generated by parents; Number of whole population
-	lam = 10
+	lam = 100
 
 	# perform the evolution strategy (mu + lambda) search
 	best, score = es_plus(objective, bounds, n_iter, step_size, mu, lam)
