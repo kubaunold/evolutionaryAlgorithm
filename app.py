@@ -184,7 +184,7 @@ def windowInit():
                         sg.T('<- mu',tooltip='liczba rodziców'),
                     ],
                     [
-                        sg.In(size=(8, 1),key="lambda",default_text="100"),
+                        sg.In(size=(8, 1),key="lambda",default_text="40"),
                         sg.T('<- lambda',tooltip='liczba potomstwa'),
                     ],
                     [
@@ -192,7 +192,7 @@ def windowInit():
                         sg.T('<- sigma',tooltip='parametr mutowalności'),
                     ],
                     [
-                        sg.In(size=(8, 1),key="noEpoch",default_text="500"),
+                        sg.In(size=(8, 1),key="noEpoch",default_text="5"),
                         sg.T('<- N',tooltip='liczba epok'),
                     ],
                     [
@@ -484,13 +484,15 @@ def runProgram():
 
                     try:  # wykres 2D - warstwice
                         logger.info("Rysowanie wykresu 2D - warstwice.")
-                        fig = fo.make_2d_countour_lines()
+                        fig, ax = fo.make_2d_countour_lines()
                         draw_figure_w_toolbar(
                             window['-FIGURE2-'].TKCanvas, fig, window['-FIGURE_CONTROLS2-'].TKCanvas)
                     except Exception as e:
                         logger.error(f"Podczas rysowania wykresu 2D: {e}.")
                     else:
                         logger.info("Pomyślnie narysowano wykres 2D.")
+
+                    
 
                 else:
                     logger.info(
@@ -515,12 +517,37 @@ def runProgram():
                     n_iter = noEpochs
                     step_size = sig
                     
-                    best, score = ep.es_plus(objective, bounds, n_iter, step_size, mu, lam)
-                    print(f"Ewolucja zakończona")
-                    print('f(%s) = %f' % (best, score))
+                    best, score, finalPoints = ep.es_plus(objective, bounds, n_iter, step_size, mu, lam)
+                    print(f"Ewolucja zakończona.")
+                    print('Najlepszy wynik: f(%s) = %f' % (best, score))
 
                 except Exception as e:
                     logger.error(f"Podczas przygotowywania parametrów do symulacji: {e}.")
+
+                else:
+                    try:  # scatter 2D - punkty na warstwicy
+                        logger.info("Rysowanie wyniku symulacji.")
+                        # print(finalPoints)
+
+                        # make x, y
+                        x = list()
+                        y = list()
+                        for o in finalPoints:
+                            x.append(o[0])
+                            y.append(o[1])
+
+                        fig, ax = fo.make_2d_countour_lines()
+                        draw_figure_w_toolbar(
+                            window['-FIGURE2-'].TKCanvas, fig, window['-FIGURE_CONTROLS2-'].TKCanvas)
+                        ax.scatter(x,y)
+                        # fig = fo.make_2d_countour_lines()
+                        draw_figure_w_toolbar(
+                            window['-FIGURE2-'].TKCanvas, fig, window['-FIGURE_CONTROLS2-'].TKCanvas)
+                    except Exception as e:
+                        logger.error(f"Podczas rysowania wyniku symulacji: {e}.")
+                    else:
+                        logger.info("Pomyślnie narysowano wynik symulacji.")
+
 
 
 
@@ -546,6 +573,8 @@ def runProgram():
                     window['-FIGURE1-'].TKCanvas, fig, window['-FIGURE_CONTROLS1-'].TKCanvas)
             except Exception as e:
                 logger.error(f"Nie mogłem narysować mock data: {e}.")
+
+
     window.close()
 
 

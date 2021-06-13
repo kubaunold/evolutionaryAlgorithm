@@ -65,7 +65,7 @@ def es_plus(objective, bounds, n_iter, step_size, mu, lam):
 
 	### PERFORMING EVOLUTION
 	for epoch in range(n_iter):
-		print(f"Epoka {epoch}:")
+		print(f"Epoka {epoch+1}:")
 		### GENERATE POPULATION
 		offspring = list()
 		# temporary population of cloned parents (as many as lam=children)
@@ -138,8 +138,11 @@ def es_plus(objective, bounds, n_iter, step_size, mu, lam):
 		
 		# print best of epoch
 		print('Najlepszy osobnik z epoki %d i wcześniejszych: f(%s) = %.7f' % (epoch+1, boe_point, boe_value))
-			
-	return [boe_point, boe_value]
+		
+		if(epoch+1==n_iter):
+			finalPoints = parents.copy()
+
+	return [boe_point, boe_value, finalPoints]
 
 
 if __name__=='__main__':
@@ -159,6 +162,6 @@ if __name__=='__main__':
 	lam = 100
 
 	# perform the evolution strategy (mu + lambda) search
-	best, score = es_plus(objective, bounds, n_iter, step_size, mu, lam)
+	best, score, _ = es_plus(objective, bounds, n_iter, step_size, mu, lam)
 	print('Done!')
 	print('f(%s) = %f' % (best, score))

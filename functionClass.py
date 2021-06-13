@@ -190,7 +190,7 @@ class Function():
         ax.clabel(CS, inline=True, fontsize=10)
         # ax.set_title(f'Warstwice funkcji {self.funToString()}')
 
-        return fig    
+        return fig, ax  
 
 
     # def __init__(self):
