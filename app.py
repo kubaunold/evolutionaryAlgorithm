@@ -26,6 +26,8 @@ from sys import exit
 
 import testFunctions as tf
 
+import esPlus as ep
+
 
 def handler(signal_received, frame):
     # Handle any cleanup here
@@ -498,91 +500,38 @@ def runProgram():
             except Exception as e:
                 logger.info(f"Błąd przy próbie narysowania funkcji: {e}.")
 
-        # if event == "-addRest-":    # add a restriction
-        #     # restriction to add
-        #     # restta = values["-REST-"]
-        #     # print(restta)
-        #     try:    # parse function
-        #         restta = eval(values["-REST-"])
-        #         occvar_no = -1
-        #         if type(restta) in [int, float]:
-        #             occvar_no = 0
-        #         # else:
-        #             # occvar_no = len(str(restta.atoms(Symbol)).split()) #occuring vars
-
-        #         if occvar_no == 0:
-        #             err = "Musi występować przynajmniej x1."
-        #             raise Exception(err)
-        #         restta_str = str(restta)
-        #     except Exception as e:
-        #         logger.error(f"Podczas rozparsowania ograniczenia: {e}")
-        #         window['-CONFIRM_RESTRICTIONS-'].Update(value=False)
-        #     else:
-        #         # check if no more than 5
-        #         nor = len(values["lbRest"])
-        #         print(f"Current number of rests: {nor}")
-        #         if len(values["lbRest"]) <= 5:
-        #             try:    # add a rest
-        #                 window['lbRest'].Update(
-        #                     values=values["lbRest"].append(restta_str))
-        #                 window.refresh()
-        #             except Exception as e:
-        #                 logger.error(f"Podczas dodawania ograniczenia: {e}")
 
         if event == "-RUN_SIMULATION-":
             try: # get parameters
-                lamda = int(values['lambda'])
+                lam = int(values['lambda'])
                 mu = int(values['mu'])
-                sigma = float(values['sigma'])
+                sig = float(values['sigma'])
                 noEpochs = int(values['noEpoch'])
             except Exception as e:
                 logger.error(f"Podczas pozyskiwania parametrów do symulacji: {e}.")
             else:
                 try: # run evolution simulation
-                    print(f"sigma: {sigma}")
+                    objective, bounds = fo.getSimulationObjectiveAndBounds()
+                    n_iter = noEpochs
+                    step_size = sig
+                    
+                    best, score = ep.es_plus(objective, bounds, n_iter, step_size, mu, lam)
+                    print(f"Ewolucja zakończona")
+                    print('f(%s) = %f' % (best, score))
 
-                    # objective = fo.getValueAt()
-                    # print(objective((1,2)))
                 except Exception as e:
-                    pass
+                    logger.error(f"Podczas przygotowywania parametrów do symulacji: {e}.")
+
+
+
         if event == "-GENERATE_MOCK-":
-            # ------------------------------- PASTE YOUR MATPLOTLIB CODE HERE
-            # plt.figure(1)
-            # fig = plt.gcf()
-            # DPI = fig.get_dpi()
-            # ------------------------------- you have to play with this size to reduce the movement error when the mouse hovers over the figure, it's close to canvas size
-            # sizeOfFigure = 600
-            # fig.set_size_inches(sizeOfFigure/DPI, sizeOfFigure/DPI)
-            # -------------------------------
-            # x = np.linspace(0, 2 * np.pi)
-            # y = np.sin(x)
-            # plt.plot(x, y)
-            # plt.title('y=sin(x)')
-            # plt.xlabel('X')
-            # plt.ylabel('Y')
-            # plt.grid()
-
-            # X = np.arange(-5, 5, 0.25)
-            # Y = np.arange(-5, 5, 0.25)
-            # X, Y = np.meshgrid(X, Y)
-            # Z = np.sin(np.sqrt(X**2 + Y**2))
-            # plt.plot(X, Y, Z)
             try:
-                # plot3d.plot_implicit(plot3d.goursat_tangle)
-                # plot3d.plot_implicit(lambda x, y, z: (x**4+y**4+z**4+a*(x**2+y**2+z**2)**2+b*(x**2+y**2+z**2)+c))
-
-                # a,b,c = 0.0,-5.0,11.8
-                # plot3d.plot_implicit(lambda X,Y,Z: (np.sin(np.sqrt(X**2 + Y**2))))
-
                 def f(x, y):
                     return np.sin(np.sqrt(x ** 2 + y ** 2))
-
                 x = np.linspace(-6, 6, 30)
                 y = np.linspace(-6, 6, 30)
-
                 X, Y = np.meshgrid(x, y)
                 Z = f(X, Y)
-
                 fig = plt.figure()
                 ax = plt.axes(projection='3d')
                 ax.contour3D(X, Y, Z, 50, cmap='binary')
@@ -595,38 +544,8 @@ def runProgram():
                 ax.set_title('surface')
                 draw_figure_w_toolbar(
                     window['-FIGURE1-'].TKCanvas, fig, window['-FIGURE_CONTROLS1-'].TKCanvas)
-
             except Exception as e:
                 logger.error(f"Nie mogłem narysować mock data: {e}.")
-
-            # ax = fig.add_subplot(1, 1, 1, projection='3d')
-
-            # # plot a 3D surface like in the example mplot3d/surface3d_demo
-            # X = np.arange(-1, 1, 0.25)
-            # Y = np.arange(-0, 2, 0.25)
-            # X, Y = np.meshgrid(X, Y)
-
-            # x1, x2 = symbols('x1 x2')
-            # f = 'x1+x2'
-            # fev = eval(f)
-            # Z = []
-            # for y in Y:
-            #     row=[]
-            #     for x in X:
-            #         res = fev.subs(x1,x).subs(x2,y)
-            #         row.append(res)
-            #     Z.append(row)
-
-            # # Z = np.sin(np.sqrt(X**2 + Y**2))
-            # surf = ax.plot_surface(
-            #     X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
-            # ax.set_zlim(-1.01, 1.01)
-            # fig.colorbar(surf, shrink=0.5, aspect=10)
-
-            # # ------------------------------- Instead of plt.show()
-            # draw_figure_w_toolbar(
-            #     window['-FIGURE-'].TKCanvas, fig, window['-FIGURE_CONTROLS-'].TKCanvas)
-
     window.close()
 
 

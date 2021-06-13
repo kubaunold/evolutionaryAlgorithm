@@ -35,6 +35,26 @@ class Function():
     #     global x1, x2, x3, x4, x5
     #     x1, x2, x3, x4, x5 = variablesInit()
 
+    def getSimulationObjectiveAndBounds(self):
+        objective = None
+        bounds = None
+
+        objective = self.getValueAt # przekaż uchwyt do tej funkcji - bez '()'
+        
+        if self.n == 1:  # 2D function
+            x1min = self.vXMin[0]
+            x1max = self.vXMax[0]
+            bounds = np.asarray([[x1min, x1max]])
+        elif self.n == 2:  # 3D function
+            x1min = self.vXMin[0]
+            x1max = self.vXMax[0]
+            x2min = self.vXMin[0]
+            x2max = self.vXMax[0]
+            bounds = np.asarray([[x1min, x1max], [x2min, x2max]])
+
+
+        return objective, bounds
+
     def funToString(self) -> str:
         return str(self.function)
 
