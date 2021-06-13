@@ -178,15 +178,19 @@ def windowInit():
             sg.Frame(
                 layout=[
                     [
-                        sg.In(size=(8, 1),key="lambda",default_text="100",tooltip='rozmiar populacji'),
-                        sg.T('<- lambda',tooltip='rozmiar populacji'),
+                        sg.In(size=(8, 1),key="mu",default_text="20"),
+                        sg.T('<- mu',tooltip='liczba rodziców'),
                     ],
                     [
-                        sg.In(size=(8, 1),key="mu",default_text="20",tooltip='liczba rodziców wybieranych co epokę'),
-                        sg.T('<- mu',tooltip='liczba rodziców wybieranych co epokę'),
+                        sg.In(size=(8, 1),key="lambda",default_text="100"),
+                        sg.T('<- lambda',tooltip='liczba potomstwa'),
                     ],
                     [
-                        sg.In(size=(8, 1),key="N",default_text="500",tooltip='liczba epok'),
+                        sg.In(size=(8, 1),key="sigma",default_text="0.15"),
+                        sg.T('<- sigma',tooltip='parametr mutowalności'),
+                    ],
+                    [
+                        sg.In(size=(8, 1),key="noEpoch",default_text="500"),
                         sg.T('<- N',tooltip='liczba epok'),
                     ],
                     [
@@ -529,13 +533,16 @@ def runProgram():
             try: # get parameters
                 lamda = int(values['lambda'])
                 mu = int(values['mu'])
+                sigma = float(values['sigma'])
                 noEpochs = int(values['noEpoch'])
             except Exception as e:
                 logger.error(f"Podczas pozyskiwania parametrów do symulacji: {e}.")
             else:
                 try: # run evolution simulation
-                    objective = fo.getValueAt()
-                    print(objective((1,2)))
+                    print(f"sigma: {sigma}")
+
+                    # objective = fo.getValueAt()
+                    # print(objective((1,2)))
                 except Exception as e:
                     pass
         if event == "-GENERATE_MOCK-":
