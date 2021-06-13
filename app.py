@@ -26,6 +26,7 @@ from sys import exit
 
 import testFunctions as tf
 
+
 def handler(signal_received, frame):
     # Handle any cleanup here
     print('SIGINT or CTRL-C detected. Exiting gracefully')
@@ -101,7 +102,6 @@ def windowInit():
                 key='function_frame',
                 relief=sg.RELIEF_GROOVE,  # GROOVE is normal, nice looking
             )
-
         ],
         [
             ### CUBE & RESTRICTIONS
@@ -167,12 +167,37 @@ def windowInit():
             #     tooltip='Użyj tego pola do wprowadzenia ograniczeń',
             #     relief=sg.RELIEF_GROOVE
             # ),
-
         ],
-        # [sg.Button("Generuj", key="-GENERATE-", button_color=('white', 'green'))],
+
         [sg.Button("Rysuj funkcję", key="-GENERATE-")],
         [sg.Button("GenerujMockData", key="-GENERATE_MOCK-")],
         [sg.Output(size=(120, 15), key=keyOfLoggerWindow)],
+
+        [
+            # SIMULATION
+            sg.Frame(
+                layout=[
+                    [
+                        sg.In(size=(8, 1),key="lambda",default_text="100",tooltip='rozmiar populacji'),
+                        sg.T('<- lambda',tooltip='rozmiar populacji'),
+                    ],
+                    [
+                        sg.In(size=(8, 1),key="mu",default_text="20",tooltip='liczba rodziców wybieranych co epokę'),
+                        sg.T('<- mu',tooltip='liczba rodziców wybieranych co epokę'),
+                    ],
+                    [
+                        sg.In(size=(8, 1),key="N",default_text="500",tooltip='liczba epok'),
+                        sg.T('<- N',tooltip='liczba epok'),
+                    ],
+                    [
+                        sg.B("Rozpocznij symulację", key="-RUN_SIMULATION-"),
+                    ],
+                ],
+                title='Symulacja',
+                key='simulation_frame',
+                relief=sg.RELIEF_GROOVE,  # GROOVE is normal, nice looking
+            )
+        ],
     ]
 
     # second column of layout
@@ -291,7 +316,7 @@ def runProgram():
     # fig = plt.figure(figsize=plt.figaspect(0.5))
 
     fig = plt.figure()
-
+    
     while True:
         event, values = window.read(timeout=10)
 
@@ -406,7 +431,6 @@ def runProgram():
 
         # Generate function
         if event == "-GENERATE-":
-
             # Zmienne muszą być podawane po kolei!
             # Jeśli n=3, to występują x1, x2 i x3!
             try:    # draw function
@@ -432,6 +456,11 @@ def runProgram():
                     draw_figure_w_toolbar(
                         window['-FIGURE1-'].TKCanvas, fig, window['-FIGURE_CONTROLS1-'].TKCanvas)
                     logger.info("Udało się narysować wykres.")
+
+
+                        
+
+
 
                 elif fo.n == 2:
                     logger.info(
@@ -496,6 +525,19 @@ def runProgram():
         #             except Exception as e:
         #                 logger.error(f"Podczas dodawania ograniczenia: {e}")
 
+        if event == "-RUN_SIMULATION-":
+            try: # get parameters
+                lamda = int(values['lambda'])
+                mu = int(values['mu'])
+                noEpochs = int(values['noEpoch'])
+            except Exception as e:
+                logger.error(f"Podczas pozyskiwania parametrów do symulacji: {e}.")
+            else:
+                try: # run evolution simulation
+                    objective = fo.getValueAt()
+                    print(objective((1,2)))
+                except Exception as e:
+                    pass
         if event == "-GENERATE_MOCK-":
             # ------------------------------- PASTE YOUR MATPLOTLIB CODE HERE
             # plt.figure(1)

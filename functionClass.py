@@ -43,6 +43,19 @@ class Function():
         self.strFunction = functionString
         self.function = eval(self.strFunction)
 
+    def getValueAt(self, point) -> float:
+        N = self.n
+        value = None
+
+        if N == 1:  # this is a 2D function
+            x = point
+            value = self.function.subs(x1,x)
+        if N == 2:  # it's a 3D function!
+            x, y = point
+            value = self.function.subs(x1, x).subs(x2, y)
+        
+        return value
+
     def create2DAxes(self):
         x1min = self.vXMin[0]
         x1max = self.vXMax[0]
