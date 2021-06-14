@@ -30,6 +30,7 @@ class Function():
     n = None        # number of occuring variables
 
     restrictions = []   # function restrictions
+    restrictionsForEvaluation = []
 
     # def __init__(self):
     #     """Create global variables x1...x5"""
@@ -129,6 +130,10 @@ class Function():
         else:
             return f
 
+    def distanceFromRestriction(self, point, restIdx):
+        r = self.restrictionsForEvaluation[restIdx]
+        distance = r(point[0], point[1])
+        return distance
 
     def satisfiesRestrictions(self, point):
         if point is None:
@@ -139,6 +144,13 @@ class Function():
                 return false
         
         return True
+
+    def makeRestrictionNoZero(self, restStr):
+        try:
+            r = lambdify([x1, x2], restStr)
+            self.restrictionsForEvaluation.append(r)
+        except Exception as e:
+            print(f"Nie mogłem dodać ograniczenia bez zera: {e}")
 
     def makeRestriction(self, restStr):
         try:

@@ -434,7 +434,7 @@ def runProgram():
                         if values[f'-CONFIRM_REST{r}-'] == True:
                             restStr_withoutZero = str(values[f'-REST{r}-'])
                             restStr = restStr_withoutZero + "<=0"
-
+                            fo.makeRestrictionNoZero(restStr_withoutZero)
                             fo.makeRestriction(restStr)
 
                             print(f'Zaznaczono {r}. ograniczenie')
@@ -449,6 +449,7 @@ def runProgram():
                 try:
                     # empty restricion functions
                     fo.restrictions = []
+                    fo.restrictionsforEvaluation = []
                 except Exception as e:
                     logger.error(f"Podczas czyszczenia ograniczeń: {e}.")
 
@@ -545,8 +546,13 @@ def runProgram():
                     step_size = sig
                     
                     best, score, finalPoints = ep.es_plus(objective, bounds, n_iter, step_size, mu, lam, fo)
-                    print(f"Ewolucja zakończona.")
+                    # * od 1. ograniczenia
+                    for i in range(len(fo.restrictions)):
+                        print(f"g{i+1}({best}) = {fo.distanceFromRestriction(best, i)}")
+
+                    # print(f"Dokładność obliczenia wartości najlepszego osobnika w funkcji ograniczajacej g1: epislon = 1e-10.")
                     print('Najlepszy wynik: f(%s) = %f' % (best, score))
+                    print(f"Ewolucja zakończona.")
 
                 except Exception as e:
                     logger.error(f"Podczas przygotowywania parametrów do symulacji: {e}.")
