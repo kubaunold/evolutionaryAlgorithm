@@ -1,0 +1,21 @@
+f1:
+sin(x1+x2)+(x1-x2)**2 - 1.5*x1
+mccormick
+g1:
+(x1+2)**2 + (x2-2)**2 - 1		        <=0
+
+
+
+f2:
+(x1-2)**2 + (x1-x2**2)**2
+g2_1:
+x1**3-x2		 		                <=0
+g2_2:
+1 + (x1-1.5)**2 -x2	 		            <=0
+
+
+
+do zrobienia:
+[DONE] - odlegosci dla wszystkich ograniczen
+- w sprawku 2 fcje tesote + 1 nasza
+- ewaluacja parametru (np. sigma)
