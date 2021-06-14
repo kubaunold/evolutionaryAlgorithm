@@ -423,11 +423,38 @@ def runProgram():
             elif values['-CONFIRM_CUBE-'] == False:
                 pass
 
+
+
         elif event == '-CONFIRM_RESTRICTIONS-':
+            
             if values['-CONFIRM_RESTRICTIONS-'] == True:
-                pass
+                try:
+                    # load restriction functions
+                    for r in range(1,6):
+                        if values[f'-CONFIRM_REST{r}-'] == True:
+                            restStr_withoutZero = str(values[f'-REST{r}-'])
+                            restStr = restStr_withoutZero + "<=0"
+
+                            fo.makeRestriction(restStr)
+
+                            print(f'Zaznaczono {r}. ograniczenie')
+
+
+
+                    print("Zatwierdzono ograniecznia")
+                except Exception as e:
+                    logger.error(f"Podczas zatwierdzania ograniczeń: {e}.")
+
             elif values['-CONFIRM_RESTRICTIONS-'] == False:
-                pass
+                try:
+                    # empty restricion functions
+                    fo.restrictions = []
+                except Exception as e:
+                    logger.error(f"Podczas czyszczenia ograniczeń: {e}.")
+
+
+
+
 
         # when all 3 are True => enable Generate key
         if values['-CONFIRM_FUNCTION-'] == values['-CONFIRM_CUBE-'] == values['-CONFIRM_RESTRICTIONS-'] == True:
@@ -517,7 +544,7 @@ def runProgram():
                     n_iter = noEpochs
                     step_size = sig
                     
-                    best, score, finalPoints = ep.es_plus(objective, bounds, n_iter, step_size, mu, lam)
+                    best, score, finalPoints = ep.es_plus(objective, bounds, n_iter, step_size, mu, lam, fo)
                     print(f"Ewolucja zakończona.")
                     print('Najlepszy wynik: f(%s) = %f' % (best, score))
 

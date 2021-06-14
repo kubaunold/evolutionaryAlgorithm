@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 def variablesInit():
     # n <= 5
     x1, x2, x3, x4, x5 = symbols('x1 x2 x3 x4 x5')
-
     return x1, x2, x3, x4, x5
 
 
@@ -29,6 +28,8 @@ class Function():
 
     lOccVars = []   # list of occuring variables
     n = None        # number of occuring variables
+
+    restrictions = []   # function restrictions
 
     # def __init__(self):
     #     """Create global variables x1...x5"""
@@ -54,6 +55,7 @@ class Function():
 
 
         return objective, bounds
+
 
     def funToString(self) -> str:
         return str(self.function)
@@ -118,6 +120,7 @@ class Function():
         X, Y = np.meshgrid(x, y)
         Z = self.function.subs([(x, X), (y, Y)])
         return Z
+
     def makeF2D(self):
         try:
             f = lambdify(x1, self.funToString())
@@ -125,6 +128,26 @@ class Function():
             print(f"Nie mogłem stworzyć funkcji 2D z podanego wzoru. {e}")
         else:
             return f
+
+
+    def satisfiesRestrictions(self, point):
+        if point is None:
+            return True
+        
+        for r in self.restrictions:
+            if r(point[0], point[1]) == False:
+                return false
+        
+        return True
+
+    def makeRestriction(self, restStr):
+        try:
+            r = lambdify([x1, x2], restStr)
+            self.restrictions.append(r)
+        except Exception as e:
+            print(f"Nie mogłem dodać ograniczenia: {e}")
+
+
     def makeF(self):
         try:
             f = lambdify([x1, x2], self.funToString())
@@ -160,6 +183,11 @@ class Function():
         ax.plot_surface(X, Y, Z, rstride=1, cstride=1,cmap='viridis', edgecolor='none')
         # ax.set_title('Wykres 3D')
 
+
+        # plot restriction
+        for r in self.restrictions:
+            ax.plot_wireframe(X,Y, r(X,Y))
+
         return fig
 
     def make_2d_countour_lines(self):
@@ -189,6 +217,10 @@ class Function():
         CS = ax.contour(X, Y, Z)
         ax.clabel(CS, inline=True, fontsize=10)
         # ax.set_title(f'Warstwice funkcji {self.funToString()}')
+
+        # plot restrictions
+        for r in self.restrictions:
+            ax.contour(X,Y, r(X,Y))
 
         return fig, ax  
 
